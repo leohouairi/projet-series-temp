@@ -33,4 +33,4 @@
 .Renviron
 
 # Fichiers de rédaction
-.pdf
+*.pdf
