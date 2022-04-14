@@ -1,9 +1,0 @@
----
-Title: "Analyse de la série temporelle"
-
----
-
-```{r}
-
-```
-

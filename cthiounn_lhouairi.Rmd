@@ -1,0 +1,46 @@
+---
+title: "Projet de Séries Temporelles: modélisation ARMA"
+author: "Conrad Thiounn et Léo Houairi"
+date: "14/04/2022"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+  bookdown::pdf_document2:
+    toc: yes
+    toc_depth: 2
+    toc_title: Table des matières
+sansfont: Times New Roman
+fontsize: 12pt
+header-includes: \renewcommand*\contentsname{Table des matières}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Partie 1 : Les données
+
+## 1 - Série choisie
+
+## 2 - Transformation
+
+## 3 - Graphiques
+
+# Partie 2 : Modèles ARMA
+
+## 4 - Choix de l'ARMA
+
+## 5 - Ecriture de l'ARIMA
+
+# Partie 3 : Prévision
+
+## 6 - Equation RC
+
+## 7 - Hypothèses
+
+## 8 - Graphique région
+
+## 9 - Question ouverte
+
+# Annexe: code utilisé
