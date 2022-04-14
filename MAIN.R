@@ -1,15 +1,19 @@
 
 ## Librairies 
 
+
+install.packages("tseries")
+install.packages("fUnitRoots")
+install.packages("forecast")
+
 require(zoo)
 require(tseries)
-#install.pacakges("tseries")
 require(fUnitRoots)
-#install.packages("fUnitRoots")
+require(forecast)
 
 ## Importation des données 
 
-datafile <- "data/valeurs_mensuelles.csv"
+datafile <- "projet-series-temp/data/valeurs_mensuelles.csv"
 data <- read.csv(datafile, sep=";", skip = 3, col.names =c("mois", "valeur", "A"))
 data <- data[,-3] # Colonne inutile
 
@@ -18,7 +22,7 @@ data <- data[,-3] # Colonne inutile
 
 dates_char <- data$mois
 dates_char[1]; dates_char[length(dates_char)] # Janvier 1990 à Février 2022
-dates <- as.yearmon(seq(from = 1990+1/12, to = 2022+2/12, by = 1/12))
+dates <- as.yearmon(seq(from = 1990+0/12, to = 2022+1/12, by = 1/12))
 
 indice <- zoo(data$valeur, order.by = dates) # C'est bien la liste précédente qui est utile
 dindice <- diff(indice, 1) # Différence première
@@ -83,5 +87,84 @@ par(mfrow=c(1,2))
 
 acf(dindice, 50); pacf(dindice, 50)
 
-# On a quand même l'impression qu'il y a un problème de saisonnalité
-# sur nos données sans sainnoalité. Très content
+
+
+
+indice
+# On prévoit une ARMA (p,q) avec q<=2 et p <=5
+
+paramGrid=expand.grid(p=seq(0,5),q=seq(0,2))
+str(paramGrid)
+paramGrid=paramGrid[-c(1),]
+
+tableModeles=data.frame("p"=paramGrid$p,"q"=paramGrid$q)
+str(tableModeles)
+
+
+### VERIFIER 1 ou 2 !!!!
+
+x=dindice[2:length(dindice)] 
+
+for (i in (1:nrow(paramGrid))){
+  #tableModeles$p[i]=paramGrid$p[i]
+  #tableModeles$q[i]=paramGrid$q[i]
+  modTemp=try(arima(x,order=c(tableModeles$p[i],0,tableModeles$q[i]),include.mean = F))
+  tableModeles$AIC[i]=if (class(modTemp)=="try-error") NA else modTemp$aic
+  tableModeles$BIC[i]=if (class(modTemp)=="try-error") NA else BIC(modTemp)
+}
+
+tableModeles
+
+
+minAIC=which.min(tableModeles$AIC)
+tableModeles[minAIC,]
+modelAIC=arima(x,order=c(tableModeles$p[minAIC],0,tableModeles$q[minAIC]),include.mean=F)
+modelAIC
+AIC(modelAIC)
+
+minBIC=which.min(tableModeles$BIC)
+tableModeles[minBIC,]
+modelBIC=arima(dindice,order=c(tableModeles$p[minBIC],0,tableModeles$q[minBIC]),include.mean = F)
+modelBIC
+BIC(modelBIC)
+
+
+
+significativite=function(fittedModel){
+  t=fittedModel$coef/sqrt(diag(fittedModel$var.coef))
+  pval=(1-pnorm(abs(t)))*2
+  return(rbind(coef=fittedModel$coef,se=sqrt(diag(fittedModel$var.coef)),t,pval))
+}
+
+testModel=function(p,q,data=x){
+  #estimation Mod?le
+  model=try(arima(data,order=c(p,0,q),optim.control=list(maxit=20000),include.mean=F))
+  if (class(model)=="try-error") return(FALSE)
+  #test significativit? derniers coefs
+  significatifModel=significativite(model)
+  testSignificativiteAR=if (p==0) TRUE else significatifModel[4,p]<=0.05
+  testSignificativiteMA=if (q==0) TRUE else significatifModel[4,p+q]<=0.05
+  testSignificativite=(testSignificativiteAR)&(testSignificativiteMA)
+  cat(paste0("r?sultat des tests de significativit? : ","\n"))
+  print(significatifModel)
+  #test autocorr?lation r?sidu
+  bpTest=lapply(seq(p+q+1,24),Box.test,x=model$residuals,type="Box-Pierce",fitdf=p+q)
+  resultBpTest=lapply(bpTest,function(y){y$p.value>0.05})
+  validModel=prod(as.numeric(resultBpTest))==1
+  cat(paste0("R?sultat du test de Box-Pierce : ",validModel,"\n"))
+  
+  #Resultat final
+  return(testSignificativite & validModel)
+}
+
+
+modelAIC
+testModel(2,2,dindice)
+
+modelBIC
+testModel(1,1,dindice)
+
+
+Qtests(modelBIC$residuals,24,length(modelBIC$coef))
+dindice
+forecast(modelBIC)
