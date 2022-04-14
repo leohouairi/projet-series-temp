@@ -31,3 +31,6 @@
 
 # R Environment Variables
 .Renviron
+
+# Fichiers de rédaction
+.pdf
