@@ -23,7 +23,22 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## 1 - Série choisie
 
+> Que représente la série choisie ? (secteur, périmètre, traitements éventuels, transformation logarithmique, etc.)
+
+La série choisie représente l'indice de la production industrielle de la fabrication de machines agricoles et forestières. Elle est exprimée en en base 100, avec pour année de référence 2015 et a fait l'objet d'une correction des variations saisonnières et des effets de calendrier (CVS-CJO) à l'aide de la méthode X13-Arima. La correction CVS-CJO a été calculé à partir d'une sous-période partant des observations de 2005 . Les observations sont mensuelles et sont comprises entre janvier 1990 et février 2022.
+
+
+La fabrication de machines agricoles et forestières est repertoriée dans la nomenclature d'activité française (NAF rév. 2) sous le poste 28.3. La nomenclature NAF Rév. 2 date de janvier 2008 : il est possible d'observer des ruptures de tendances liées à ce changement, dues à des éventuels changements entre la NAF Rév. 1 et la NAF Rev. 2, de reclassement de produits ou de classes.
+
+La fabrication comprend notamment la fabrication de charrues, tracteurs et de machines à traire. L'analyse temporelle de l'indice de la production industrielle permet de rendre compte de l'évolution de la valeur ajoutée du secteur concerné.
+
+
+
 ## 2 - Transformation
+
+> Transformer si besoin la série pour la rendre stationnaire (différentiation, suppression de la tendance déterministe, etc.). Justifier soigneusement vos choix.
+
+La série choisie ne semble pas stationnaire. Le chronogramme ressemble à une marche aléatoire.
 
 ## 3 - Graphiques
 
