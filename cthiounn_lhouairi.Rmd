@@ -17,15 +17,40 @@ header-includes: \renewcommand*\contentsname{Table des matières}
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+#install.packages('tinytex')
+#tinytex::install_tinytex()
+```
+
+```{r chargement, include=FALSE}
+require(zoo)
+require(tseries)
+require(fUnitRoots)
+require(forecast)
+
+## Importation des données 
+
+datafile <- "data/valeurs_mensuelles.csv"
+data <- read.csv(datafile, sep=";", skip = 3, col.names =c("mois", "valeur", "A"))
+data <- data[,-3] # Suppression de la colonne inutile
+
+dates_char <- data$mois
+dates_char[1]; dates_char[length(dates_char)] # Janvier 1990 à Février 2022
+dates <- as.yearmon(seq(from = 1990+0/12, to = 2022+1/12, by = 1/12))
+
+
+## Premiers graphiques
+
+indice <- zoo(data$valeur, order.by = dates) # C'est bien la liste précédente qui est utile
+dindice <- diff(indice, 1) # Différence première
 ```
 
 # Partie 1 : Les données
 
 ## 1 - Série choisie
 
-> Que représente la série choisie ? (secteur, périmètre, traitements éventuels, transformation logarithmique, etc.)
+``` Que représente la série choisie ? (secteur, périmètre, traitements éventuels, transformation logarithmique, etc.)```
 
-La série choisie représente l'indice de la production industrielle de la fabrication de machines agricoles et forestières. Elle est exprimée en en base 100, avec pour année de référence 2015 et a fait l'objet d'une correction des variations saisonnières et des effets de calendrier (CVS-CJO) à l'aide de la méthode X13-Arima. La correction CVS-CJO a été calculé à partir d'une sous-période partant des observations de 2005 . Les observations sont mensuelles et sont comprises entre janvier 1990 et février 2022.
+La série choisie représente l'indice de la production industrielle de la fabrication de machines agricoles et forestières, élaborée à partir des enquêtes de branche de l'Insee. Elle est exprimée en en base 100, avec pour année de référence 2015 et a fait l'objet d'une correction des variations saisonnières et des effets de calendrier (CVS-CJO) à l'aide de la méthode X13-Arima. La correction CVS-CJO a été calculée à partir d'une sous-période partant des observations de 2005 . Les observations sont mensuelles et sont comprises entre janvier 1990 et février 2022.
 
 
 La fabrication de machines agricoles et forestières est repertoriée dans la nomenclature d'activité française (NAF rév. 2) sous le poste 28.3. La nomenclature NAF Rév. 2 date de janvier 2008 : il est possible d'observer des ruptures de tendances liées à ce changement, dues à des éventuels changements entre la NAF Rév. 1 et la NAF Rev. 2, de reclassement de produits ou de classes.
@@ -36,11 +61,44 @@ La fabrication comprend notamment la fabrication de charrues, tracteurs et de ma
 
 ## 2 - Transformation
 
-> Transformer si besoin la série pour la rendre stationnaire (différentiation, suppression de la tendance déterministe, etc.). Justifier soigneusement vos choix.
+``` Transformer si besoin la série pour la rendre stationnaire (différentiation, suppression de la tendance déterministe, etc.). Justifier soigneusement vos choix.```
 
 La série choisie ne semble pas stationnaire. Le chronogramme ressemble à une marche aléatoire.
+```{R image chronogramme, echo=FALSE, fig.cap="Chronogramme de la série brute", out.width = '100%'}
+#knitr::include_graphics("chronogramme_serie_brut.png")
+plot(indice, main="Série brute")
+
+```
+
+### 2.1 Stationnarité de la série initiale
+
+Afin de statuer sur la stationnarité de la série initiale, nous testons dans un premier temps si la série présente une tendance linéaire déterministe en régressant la série par le temps. La regression linéaire donne des coefficients non significatifs aux seuils usuels. Il n'est pas possible d'en déduire une tendance linéaire déterministe.
+
+Nous testons alors la présence d'une composante stochastique à l'aide des tests de Dickey-Fuller augmentés et de Phillips-Perron.
+
+Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 5 retards et nous propose de ne pas rejetter l'hypothèse nulle de non-stationnarité.
+
+```
+Title:
+ Augmented Dickey-Fuller Test
+
+Test Results:
+  PARAMETER:
+    Lag Order: 5
+  STATISTIC:
+    Dickey-Fuller: -0.73
+  P VALUE:
+    0.3837 
+```
 
 ## 3 - Graphiques
+
+>  Représenter graphiquement la série choisie avant et après transformation.
+
+```{R chronogramme, echo=FALSE, fig.cap="Chronogramme de la série brute et de la série différenciée", out.width = '100%'}
+
+plot(cbind(indice, dindice), main="Série brute et série transformée")
+```
 
 # Partie 2 : Modèles ARMA
 
