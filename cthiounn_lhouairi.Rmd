@@ -50,12 +50,12 @@ dindice <- diff(indice, 1) # Différence première
 
 ``` Que représente la série choisie ? (secteur, périmètre, traitements éventuels, transformation logarithmique, etc.)```
 
-La série choisie représente l'indice de la production industrielle de la fabrication de machines agricoles et forestières, élaborée à partir des enquêtes de branche de l'Insee. Elle est exprimée en en base 100, avec pour année de référence 2015 et a fait l'objet d'une correction des variations saisonnières et des effets de calendrier (CVS-CJO) à l'aide de la méthode X13-Arima. La correction CVS-CJO a été calculée à partir d'une sous-période partant des observations de 2005 . Les observations sont mensuelles et sont comprises entre janvier 1990 et février 2022.
+La série choisie représente l'indice de la production industrielle de la fabrication de machines agricoles et forestières, élaborée à partir des enquêtes de branche de l'Insee. Elle est exprimée en base 100, avec pour année de référence 2015 et a fait l'objet d'une correction des variations saisonnières et des effets de calendrier (CVS-CJO) à l'aide de la méthode X13-Arima. La correction CVS-CJO a été calculée à partir d'une sous-période partant des observations de 2005. Les observations sont mensuelles et sont comprises entre janvier 1990 et février 2022.
 
 
 La fabrication de machines agricoles et forestières est repertoriée dans la nomenclature d'activité française (NAF rév. 2) sous le poste 28.3. La nomenclature NAF Rév. 2 date de janvier 2008 : il est possible d'observer des ruptures de tendances liées à ce changement, dues à des éventuels changements entre la NAF Rév. 1 et la NAF Rev. 2, de reclassement de produits ou de classes.
 
-La fabrication comprend notamment la fabrication de charrues, tracteurs et de machines à traire. L'analyse temporelle de l'indice de la production industrielle permet de rendre compte de l'évolution de la valeur ajoutée du secteur concerné.
+La fabrication comprend notamment la fabrication de charrues, de tracteurs et de machines à traire. L'analyse temporelle de l'indice de la production industrielle permet de rendre compte de l'évolution de la valeur ajoutée du secteur concerné.
 
 
 
@@ -70,9 +70,9 @@ plot(indice, main="Série brute")
 
 ```
 
-### 2.1 Stationnarité de la série initiale
+### 2.1 Non-stationnarité de la série initiale
 
-Afin de statuer sur la stationnarité de la série initiale, nous testons dans un premier temps si la série présente une tendance linéaire déterministe en régressant la série par le temps. La regression linéaire donne des coefficients non significatifs aux seuils usuels. Il n'est pas possible d'en déduire une tendance linéaire déterministe.
+Afin de statuer sur la stationnarité de la série initiale, nous testons dans un premier temps si la série présente une tendance linéaire déterministe en régressant la série par le temps. La regression linéaire donne des coefficients non significatifs aux seuils usuels. Il n'est pas possible d'en déduire l'existence d'une tendance linéaire déterministe.
 
 Nous testons alors la présence d'une composante stochastique à l'aide des tests de Dickey-Fuller augmentés et de Phillips-Perron.
 
@@ -90,6 +90,46 @@ Test Results:
   P VALUE:
     0.3837 
 ```
+
+### 2.1 Stationnarité de la série différenciée
+
+Nous effectuons la même méthodologie que sur la série brute en testant en premier lieu la présence d'une tendance linéaire déterministe. La régression linéaire donne également des coefficients non significatifs aux seuils usuels, présageant l'éventuelle stationnarité de la série différenciée.
+
+Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 4 retards et nous propose de rejetter l'hypothèse nulle de non-stationnarité (p-value=0.01).
+
+```
+Title:
+ Augmented Dickey-Fuller Test
+
+Test Results:
+  PARAMETER:
+    Lag Order: 4
+  STATISTIC:
+    Dickey-Fuller: -12.356
+  P VALUE:
+    0.01 
+```
+
+Le test de Phillips-Perron donne la même conclusion, avec 5 retards en proposant de rejetter l'hypothèse nulle de non-stationnarité (p-value=0.01).
+
+```
+	Phillips-Perron Unit Root Test
+
+data:  dindice
+Dickey-Fuller Z(alpha) = -401.19, Truncation lag parameter = 5, p-value = 0.01
+alternative hypothesis: stationary
+```
+
+
+Le test de stationnarité KPSS nous propose de rejetter l'hypothèse nulle de stationnarité (p-value=0.01).
+
+```
+	KPSS Test for Level Stationarity
+
+data:  dindice
+KPSS Level = 0.027926, Truncation lag parameter = 5, p-value = 0.1
+```
+
 
 ## 3 - Graphiques
 
