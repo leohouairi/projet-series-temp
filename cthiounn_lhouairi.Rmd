@@ -186,8 +186,17 @@ sigma^2 estimated as 126.1:  log likelihood = -1477.6,  aic = 2961.19
 
 ``` 5. Exprimer le modèle ARIMA(p,d,q) pour la série choisie. ```
 
+Pour le modèle ARIMA(5,1,0) :
+$\left( 1 - \sum_{i=1}^5 \varphi_i L^i \right)
+(1-L) X_t
+= \varepsilon_t \,$
+avec $\hat\varphi=(\hat\varphi_i)_i=(-0.3166,  -0.2305,  -0.1163,  -0.1750,  -0.1449)$
 
-
+Pour le modèle ARIMA(1,1,1):
+$\left( 1 -  \varphi L \right)
+(1-L) X_t
+= \left( 1 +\theta L \right) \varepsilon_t \,$
+avec $\hat\varphi = 0.4006$ et $\hat\theta =  -0.7190$
 
 # Partie 3 : Prévision
 
