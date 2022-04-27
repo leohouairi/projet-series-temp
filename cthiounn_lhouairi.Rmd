@@ -121,7 +121,7 @@ alternative hypothesis: stationary
 ```
 
 
-Le test de stationnarité KPSS nous propose de rejetter l'hypothèse nulle de stationnarité (p-value=0.01).
+Le test de stationnarité KPSS nous propose de ne pas rejetter l'hypothèse nulle de stationnarité (p-value=0.1) au seuil de 5%.
 
 ```
 	KPSS Test for Level Stationarity
@@ -204,11 +204,14 @@ avec $\hat\varphi = 0.4006$ et $\hat\theta =  -0.7190$
 
 ``` 6. Ecrire l’équation vérifiée par la région de confiance de niveau alpha sur les valeurs futures (XT +1, XT +2). ```
 
+Pour le modèle ARIMA(1,1,1):
+
+
 ## 7 - Hypothèses
 
 ``` 7. Préciser les hypothèses utilisées pour obtenir cette région. ```
 
-
+On suppose que les $\varepsilon_t$ sont gaussiens iid.
 
 ## 8 - Graphique région
 
