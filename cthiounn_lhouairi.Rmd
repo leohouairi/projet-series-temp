@@ -93,7 +93,7 @@ Test Results:
 
 ### 2.1 Stationnarité de la série différenciée
 
-Nous effectuons la même méthodologie que sur la série brute en testant en premier lieu la présence d'une tendance linéaire déterministe. La régression linéaire donne également des coefficients non significatifs aux seuils usuels, présageant l'inexistexe d'une tendance linéaire déterministe de la série différenciée.
+Nous effectuons la même méthodologie que sur la série brute en testant en premier lieu la présence d'une tendance linéaire déterministe. La régression linéaire donne également des coefficients non significatifs aux seuils usuels, présageant l'inexistence d'une tendance linéaire déterministe de la série différenciée.
 
 Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 4 retards et nous propose de rejetter l'hypothèse nulle de non-stationnarité (p-value=0.01).
 
@@ -153,7 +153,7 @@ par(mfrow=c(1,2))
 acf(x,main="Autocorrélogramme"); pacf(x,main="Autocorrélogramme partiel")
 ```
 
-L'analyse de l'autocorrélogramme empirique, conjointement avec l'autocorrélogramme partiel empirique ne nous permet pas de nous diriger d'emblée vers une modélisation par un modèle AR ou à un modèle MA. Nous testons alors les modèles ARMA(p,q) avec pmax = 5, qmax = 2 et les critères AIC et BIC poru la sélection du modèle.
+L'analyse de l'autocorrélogramme empirique, conjointement avec l'autocorrélogramme partiel empirique ne nous permet pas de nous diriger d'emblée vers une modélisation par un modèle AR ou à un modèle MA. Nous testons alors les modèles ARMA(p,q) avec pmax = 5, qmax = 2 et les critères AIC et BIC pour la sélection du modèle.
 
 Avec le critère AIC, nous retenons un modèle ARMA(5,0) pour la série différenciée et donc un modèle ARIMA(5,1,0) pour la série initiale. Le modèle est bien ajusté car les coefficients sont significatifs aux seuils usuels. Le modèle est également valide car les résidus ne sont pas autocorrelés.
 
@@ -222,4 +222,5 @@ On suppose que les $\varepsilon_t$ sont gaussiens iid.
 
 ``` 9. Question ouverte : soit Yt une série stationnaire disponible de t = 1 à T. On suppose que YT +1 est disponible plus rapidement que XT +1. Sous quelle(s) condition(s) cette information permet-elle d’améliorer la prévision de XT +1 ? Comment la (les) testeriez-vous ? ```
 
+Si $Y_t$ cause instantanément au sens de Granger à $X_t$, il est possible d'utiliser $Y_{T+1}$ pour améliorer la prédiction de $X_{T+1}$.
 # Annexe: code utilisé
