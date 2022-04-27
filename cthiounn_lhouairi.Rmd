@@ -50,7 +50,7 @@ dindice <- diff(indice, 1) # Différence première
 
 ``` Que représente la série choisie ? (secteur, périmètre, traitements éventuels, transformation logarithmique, etc.)```
 
-La série choisie représente l'indice de la production industrielle de la fabrication de machines agricoles et forestières, élaborée à partir des enquêtes de branche de l'Insee. Elle est exprimée en base 100, avec pour année de référence 2015 et a fait l'objet d'une correction des variations saisonnières et des effets de calendrier (CVS-CJO) à l'aide de la méthode X13-Arima. La correction CVS-CJO a été calculée à partir d'une sous-période partant des observations de 2005. Les observations sont mensuelles et sont comprises entre janvier 1990 et février 2022.
+La série choisie représente l'indice de la production industrielle de la fabrication de machines agricoles et forestières, élaborée à partir des enquêtes de branche de l'Insee. Elle est exprimée en base 100, avec pour année de référence 2015 et a fait l'objet de deux corrections des variations saisonnières et des effets de calendrier (CVS-CJO) à l'aide de la méthode X13-Arima. Les corrections CVS-CJO ont été calculées sur deux sous-périodes dénommées "le Passé" et "le Courant" délimitées par l'année 2005. "Le Courant" est composé des observations de l'année 2005 et posterieures tandis que "le Passé" est composées des observations antérieurs à 2005. Les observations sont mensuelles et sont comprises entre janvier 1990 et février 2022.
 
 
 La fabrication de machines agricoles et forestières est repertoriée dans la nomenclature d'activité française (NAF rév. 2) sous le poste 28.3. La nomenclature NAF Rév. 2 date de janvier 2008 : il est possible d'observer des ruptures de tendances liées à ce changement, dues à des éventuels changements entre la NAF Rév. 1 et la NAF Rev. 2, de reclassement de produits ou de classes.
@@ -63,7 +63,7 @@ La fabrication comprend notamment la fabrication de charrues, de tracteurs et de
 
 ``` Transformer si besoin la série pour la rendre stationnaire (différentiation, suppression de la tendance déterministe, etc.). Justifier soigneusement vos choix.```
 
-La série choisie ne semble pas stationnaire. Le chronogramme ressemble à une marche aléatoire.
+La série choisie ne semble pas être stationnaire. Le chronogramme ressemble à une marche aléatoire.
 ```{R image chronogramme, echo=FALSE, fig.cap="Chronogramme de la série brute", out.width = '100%'}
 #knitr::include_graphics("chronogramme_serie_brut.png")
 plot(indice, main="Série brute")
@@ -93,7 +93,7 @@ Test Results:
 
 ### 2.1 Stationnarité de la série différenciée
 
-Nous effectuons la même méthodologie que sur la série brute en testant en premier lieu la présence d'une tendance linéaire déterministe. La régression linéaire donne également des coefficients non significatifs aux seuils usuels, présageant l'éventuelle stationnarité de la série différenciée.
+Nous effectuons la même méthodologie que sur la série brute en testant en premier lieu la présence d'une tendance linéaire déterministe. La régression linéaire donne également des coefficients non significatifs aux seuils usuels, présageant l'inexistexe d'une tendance linéaire déterministe de la série différenciée.
 
 Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 4 retards et nous propose de rejetter l'hypothèse nulle de non-stationnarité (p-value=0.01).
 
@@ -153,7 +153,7 @@ par(mfrow=c(1,2))
 acf(x,main="Autocorrélogramme"); pacf(x,main="Autocorrélogramme partiel")
 ```
 
-L'analyse de l'autocorrélogramme, conjointement avec l'autocorrélogramme partiel ne nous permet pas de conclure à un modèle AR ou à un modèle MA. Nous testons alors les modèles ARMA(p,q) avec pmax = 5, qmax = 2 et les critères AIC et BIC poru la sélection du modèle.
+L'analyse de l'autocorrélogramme empirique, conjointement avec l'autocorrélogramme partiel empirique ne nous permet pas de nous diriger d'emblée vers une modélisation par un modèle AR ou à un modèle MA. Nous testons alors les modèles ARMA(p,q) avec pmax = 5, qmax = 2 et les critères AIC et BIC poru la sélection du modèle.
 
 Avec le critère AIC, nous retenons un modèle ARMA(5,0) pour la série différenciée et donc un modèle ARIMA(5,1,0) pour la série initiale. Le modèle est bien ajusté car les coefficients sont significatifs aux seuils usuels. Le modèle est également valide car les résidus ne sont pas autocorrelés.
 
