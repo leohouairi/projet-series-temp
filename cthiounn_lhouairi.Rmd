@@ -217,10 +217,15 @@ On suppose que les $\varepsilon_t$ sont gaussiens iid.
 
 ``` 8. Représenter graphiquement cette région pour alpha = 95%. Commenter. ```
 
+```{R predict, echo=FALSE, fig.cap="Prédiction des mois de mars et d'avril 2022", out.width = '100%'}
+arima111 <- arima(indice, c(1,1,1), include.mean = F)
+plot(forecast(arima111, h =2, level = 95), xlim=c(2020, 2022.2), main="Prédiction de l'IPI Fabrication de machines agricoles et forestières")
+```
 
 ## 9 - Question ouverte
 
 ``` 9. Question ouverte : soit Yt une série stationnaire disponible de t = 1 à T. On suppose que YT +1 est disponible plus rapidement que XT +1. Sous quelle(s) condition(s) cette information permet-elle d’améliorer la prévision de XT +1 ? Comment la (les) testeriez-vous ? ```
 
 Si $Y_t$ cause instantanément au sens de Granger à $X_t$, il est possible d'utiliser $Y_{T+1}$ pour améliorer la prédiction de $X_{T+1}$.
+
 # Annexe: code utilisé
