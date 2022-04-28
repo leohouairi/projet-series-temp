@@ -182,15 +182,11 @@ s.e.  0.1029   0.0778
 sigma^2 estimated as 126.1:  log likelihood = -1477.6,  aic = 2961.19
 ```
 
+L'étude de la série tronquée des observations antérieures à 2005 (date de coupure entre "le Passé" et "le Courant") nous donne par sélection par le BIC ou l'AIC, une modélisation ARIMA(1,1,1). Dans la suite du projet, nous présentons donc uniquement la modèlisation ARIMA(1,1,1).
+
 ## 5 - Ecriture de l'ARIMA
 
 ``` 5. Exprimer le modèle ARIMA(p,d,q) pour la série choisie. ```
-
-Pour le modèle ARIMA(5,1,0) :
-$\left( 1 - \sum_{i=1}^5 \varphi_i L^i \right)
-(1-L) X_t
-= \varepsilon_t \,$
-avec $\hat\varphi=(\hat\varphi_i)_i=(-0.3166,  -0.2305,  -0.1163,  -0.1750,  -0.1449)$
 
 Pour le modèle ARIMA(1,1,1):
 $\left( 1 -  \varphi L \right)
@@ -211,7 +207,11 @@ Pour le modèle ARIMA(1,1,1):
 
 ``` 7. Préciser les hypothèses utilisées pour obtenir cette région. ```
 
-On suppose que les $\varepsilon_t$ sont gaussiens iid.
+Les hypothèses utilisées pour obtenir cette région sont les suivantes : 
+
+1. On suppose que les $\varepsilon_t$ sont gaussiens iid.
+2. On suppose que les coefficients estimées sont les vraies coefficients du modèle
+3. la variance des $\varepsilon_t$ est non nulle et estimable par $\hat\sigma^2$
 
 ## 8 - Graphique région
 
