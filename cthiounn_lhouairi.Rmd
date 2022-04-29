@@ -3,13 +3,13 @@ title: "Projet de Séries Temporelles: modélisation ARIMA"
 author: "Conrad Thiounn et Léo Houairi"
 date: "14/04/2022"
 output:
-  pdf_document:
-    toc: yes
-    toc_depth: '2'
   bookdown::pdf_document2:
     toc: yes
     toc_depth: 2
     toc_title: Table des matières
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
 sansfont: Times New Roman
 fontsize: 12pt
 header-includes: \renewcommand*\contentsname{Table des matières}
@@ -44,11 +44,11 @@ indice <- zoo(data$valeur, order.by = dates) # C'est bien la liste précédente 
 dindice <- diff(indice, 1) # Différence première
 ```
 
-# Partie 1 : Les données
+\newpage
 
-## 1 - Série choisie
+# Partie 1 : Les données {-}
 
-``` Que représente la série choisie ? (secteur, périmètre, traitements éventuels, transformation logarithmique, etc.)```
+## 1 - Série choisie {-}
 
 La série choisie représente l'indice de la production industrielle de la fabrication de machines agricoles et forestières, élaborée à partir des enquêtes de branche de l'Insee. Elle est exprimée en base 100, avec pour année de référence 2015 et a fait l'objet de deux corrections des variations saisonnières et des effets de calendrier (CVS-CJO) à l'aide de la méthode X13-Arima. Les corrections CVS-CJO ont été calculées sur deux sous-périodes dénommées "le Passé" et "le Courant" délimitées par l'année 2005. "Le Courant" est composé des observations de l'année 2005 et posterieures tandis que "le Passé" est composées des observations antérieurs à 2005. Les observations sont mensuelles et sont comprises entre janvier 1990 et février 2022.
 
@@ -57,29 +57,13 @@ La fabrication de machines agricoles et forestières est repertoriée dans la no
 
 La fabrication comprend notamment la fabrication de charrues, de tracteurs et de machines à traire. L'analyse temporelle de l'indice de la production industrielle permet de rendre compte de l'évolution de la valeur ajoutée du secteur concerné.
 
+## 2 - Transformation {-}
 
+La série choisie ne semble pas être stationnaire. Le chronogramme ressemble à une marche aléatoire (voir haut de la figure \@ref(fig:chronogramme).)
 
-## 2 - Transformation
+### 2.1 Non-stationnarité de la série initiale {-}
 
-``` Transformer si besoin la série pour la rendre stationnaire (différentiation, suppression de la tendance déterministe, etc.). Justifier soigneusement vos choix.```
-
-La série choisie ne semble pas être stationnaire. Le chronogramme ressemble à une marche aléatoire (voir \@ref(fig:imgchronogramme).
-
-```{R imgchronogramme, echo=FALSE, fig.cap="Chronogramme de la série brute", out.width = '100%'}
-#knitr::include_graphics("chronogramme_serie_brut.png")
-plot(indice, main="Série brute")
-
-```
-
-### 2.1 Non-stationnarité de la série initiale
-
-Afin de statuer sur la stationnarité de la série initiale, nous testons dans un premier temps si la série présente une tendance linéaire déterministe en régressant la série sur le temps. La régression linéaire donne des coefficients non significatifs aux seuils usuels. On conclut donc à l'absence d'une tendance linéaire déterministe observable. 
-
-```{r, echo = FALSE}
-reg <- lm(formula = indice ~ dates)
-summary(reg)
-```
-
+Afin de statuer sur la stationnarité de la série initiale, nous testons dans un premier temps si la série présente une tendance linéaire déterministe en régressant la série sur le temps. La régression linéaire donne des coefficients non significatifs aux seuils usuels. On conclut donc à l'absence d'une tendance linéaire déterministe observable. Le tableau des résultats de cetter régression linéaire est disponible en annexe \@ref(regindice).
 
 Nous testons alors la présence d'une composante stochastique à l'aide des tests de Dickey-Fuller augmentés (DF) et de Phillips-Perron (PP).
 
@@ -103,14 +87,10 @@ Test Results:
 ** Du coup on parle du test de PP mais on ne l'utilise pas sur la série brute ?**
 
 
-### 2.1 Stationnarité de la série différenciée
+### 2.1 Stationnarité de la série différenciée {-}
 
-Nous effectuons la même méthodologie que sur la série brute et commencons par tester la présence d'une tendance linéaire déterministe. La régression linéaire conduit également des coefficients non significatifs aux seuils usuels. On conclut à nouveau à l'absence d'une tendance linéaire déterministe pour la série différenciée.  
+Nous effectuons la même méthodologie que sur la série brute et commençons par tester la présence d'une tendance linéaire déterministe. La régression linéaire conduit également des coefficients non significatifs aux seuils usuels. On conclut à nouveau à l'absence d'une tendance linéaire déterministe pour la série différenciée. Le tableau des résultats de cetter régression linéaire est disponible en annexe \@ref(regdindice).
 
-```{r, echo = FALSE}
-regd <- lm(formula = dindice ~ dates[-1])
-summary(regd)
-```
 A nouveau, la spécification du test de DF est "nc". 
 Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 4 retards. La p-value associée à ce test est de 0.01, on rejette donc l'hypothèse nulle à tous les seuils usuels. Puisque l'hypothèse nulle est la non-stationnarité, il semble donc que la série différenciée soit stationnaire.  
 
@@ -148,9 +128,7 @@ KPSS Level = 0.027926, Truncation lag parameter = 5, p-value = 0.1
 
 Etant donné que les 3 tests utilisés mènent à la même conclusion, on est relativement confiants pour dire que la série différenciée est stationnaire. 
 
-## 3 - Graphiques
-
-``` Représenter graphiquement la série choisie avant et après transformation. ```
+## 3 - Graphiques {-}
 
 ```{R chronogramme, echo=FALSE, fig.cap="Chronogramme de la série brute et de la série différenciée", out.width = '100%'}
 
@@ -162,9 +140,7 @@ La série différenciée (dindice, bas de la figure) fait bien plus penser à un
 
 # Partie 2 : Modèles ARMA
 
-## 4 - Choix de l'ARMA
-
-``` 4. Choisir, en le justifiant, un modèle ARMA(p,q) pour votre série corrigée Xt. Estimer les paramètres du modèle et vérifier sa validité. ```
+## 4 - Choix de l'ARMA {-}
 
 ```{R ACF PACF, echo=FALSE, fig.cap="Autocorrélogramme et autocorélogramme partiel", out.width = '100%'}
 x = dindice # Le x sur lequel on travaille est la série différenciée
@@ -229,9 +205,7 @@ Nous disposons à ce stade de deux modèles ARIMA différents, tous deux bien aj
 L'étude de la série tronquée des observations antérieures à 2005 (date de coupure entre "le Passé" et "le Courant") nous donne par sélection par le BIC ou l'AIC, une modélisation ARIMA(1,1,1). Dans la suite du projet, nous présentons donc uniquement la modélisation ARIMA(1,1,1).
 
 
-## 5 - Ecriture de l'ARIMA
-
-``` 5. Exprimer le modèle ARIMA(p,d,q) pour la série choisie. ```
+## 5 - Ecriture de l'ARIMA {-}
 
 Nous donnons ci-dessous l'écriture du modèle ARIMA(1,1,1):
 
@@ -240,11 +214,9 @@ $$\left( 1 -  \varphi L \right)
 = \left( 1 +\theta L \right) \varepsilon_t \,$$
 avec $\hat\varphi = 0.4006$ et $\hat\theta =  -0.7190$ et où L est l'opérateur de retard (souvent noté B).
 
-# Partie 3 : Prévision
+# Partie 3 : Prévision {-}
 
-## 6 - Equation RC
-
-``` 6. Ecrire l’équation vérifiée par la région de confiance de niveau alpha sur les valeurs futures (XT +1, XT +2). ```
+## 6 - Equation régions de confiance pour les prévisions à T+1 et T+2 {-}
 
 Pour le modèle ARIMA(1,1,1):
 On note $\hat{X}_{T+1|T}$ la meilleure prédiction de X au temps T+1 sachant les X précédents. On néglige l'incertitude due à la variance dans l'estimation des paramètres du modèle. On sait que la meilleure prédiction à l'horizon T+1 ne peut pas prendre en compte l'innovation en T+1, dit autrement: 
@@ -269,9 +241,7 @@ On peut alors utiliser cette statistique de test pour construire un intervalle d
 $$IC_{95\%}(X_{T+1}) = [\hat{X}_{T+1|T} - 1.96 \times \hat{\sigma}_{\epsilon}, \hat{X}_{T+1|T} + 1.96 \times \hat{\sigma}_{\epsilon}]$$
 $$IC_{95\%}(X_{T+2}) = [\hat{X}_{T+2|T} - 1.96 \times \hat{\sigma}_{\epsilon} \times \sqrt{(1+\hat{\varphi}^2)}, \hat{X}_{T+2|T} + 1.96 \times \hat{\sigma}_{\epsilon} \times \sqrt{(1+\hat{\varphi}^2)}]$$
 
-## 7 - Hypothèses
-
-``` 7. Préciser les hypothèses utilisées pour obtenir cette région. ```
+## 7 - Hypothèses utilisées pour consturire la région de confiance {-}
 
 Les hypothèses utilisées pour obtenir cette région sont les suivantes : 
 
@@ -279,22 +249,230 @@ Les hypothèses utilisées pour obtenir cette région sont les suivantes :
 2. On suppose que les coefficients estimées sont les vrais coefficients du modèle et que le modèle st bien spécifié
 3. On suppose que la variance des $\varepsilon_t$ est non nulle et estimable par $\hat\sigma^2$
 
-## 8 - Graphique région
+## 8 - Représentation graphique de la région de confiance {-}
 
 ``` 8. Représenter graphiquement cette région pour alpha = 95%. Commenter. ```
 
-```{R predict, echo=FALSE, fig.cap="Prédiction des mois de mars et d'avril 2022", out.width = '100%'}
+```{R predict, echo=FALSE, fig.cap="Prédiction des mois de mars et d'avril 2022", fig.pos = 'h!', out.width= "60%"}
 arima111 <- arima(indice, c(1,1,1), include.mean = F)
 plot(forecast(arima111, h =2, level = 95), xlim=c(2020, 2022.2), main="Prédiction de l'IPI Fabrication de machines agricoles et forestières")
 ```
 On affiche ci-dessus les 2 prédictions ainsi que leurs intervalles de confiance à 95%. L'ensemble de la série n'est pas affichée afin que les valeurs prédites soient bien visibles. On constate que l'intervalle de confiance est plus large pour la valeur en $T+2$ ce qui est logique: c'est cohérent avec les formules mathématiques et cela traduit notre plus grande incertitude à long-terme. 
 
-## 9 - Question ouverte
-
-``` 9. Question ouverte : soit Yt une série stationnaire disponible de t = 1 à T. On suppose que YT +1 est disponible plus rapidement que XT +1. Sous quelle(s) condition(s) cette information permet-elle d’améliorer la prévision de XT +1 ? Comment la (les) testeriez-vous ? ```
+## 9 - Question ouverte {-}
 
 Si $Y_t$ cause instantanément $X_t$ au sens de Granger, il est possible d'utiliser $Y_{T+1}$ pour améliorer la prédiction de $X_{T+1}$. 
 On peut utiliser les valeurs passées des deux séries pour tester si $Y_t$ cause $X_t$ au sens de Granger. Pour cela, on pourrait avoir recours au test de Wald, qui s'appuie sur les corrélations entre les erreurs. En effet, si $\epsilon_{X_t}$ et $\epsilon_{Y_t}$ ne sont pas corrélés, il n'est pas possible que $Y_t$ cause instantanément $X_t$ au sens de Granger. 
 
+\newpage 
 
-# Annexe: code utilisé
+# (APPENDIX) Appendix {-}
+
+# Annexes
+
+## Régression linéaire sur la série brute {#regindice}
+
+```{r, echo = FALSE}
+reg <- lm(formula = indice ~ dates)
+summary(reg)
+```
+On ne peut pas rejeter l'hypothèse nulle que les coefficients sont nuls aux seuils usuels.
+
+## Régression linéaire sur la série diférenciée {#regdindice}
+
+```{r, echo = FALSE}
+regd <- lm(formula = dindice ~ dates[-1])
+summary(regd)
+```
+On ne peut pas rejeter l'hypothèse nulle que les coefficients sont nuls aux seuils usuels.
+
+## Code utilisé
+
+```{r, eval = FALSE}
+### Librairies
+
+require(zoo)
+require(tseries)
+require(fUnitRoots)
+require(forecast)
+
+## Importation des données 
+
+datafile <- "data/valeurs_mensuelles.csv"
+data <- read.csv(datafile, sep=";", skip = 3, col.names =c("mois", "valeur", "A"))
+data <- data[,-3] # Suppression de la colonne inutile
+
+dates_char <- data$mois
+dates_char[1]; dates_char[length(dates_char)] # Janvier 1990 à Février 2022
+dates <- as.yearmon(seq(from = 1990+0/12, to = 2022+1/12, by = 1/12))
+
+
+## Premiers graphiques
+
+indice <- zoo(data$valeur, order.by = dates) # C'est bien la liste précédente qui est utile
+dindice <- diff(indice, 1) # Différence première
+
+plot(cbind(indice, dindice))
+
+# Notre série paraît très persistent, sans tendance très visible
+# On a peut-être une stochastique trend ou une racine unitaire ? 
+# La sériée différenciée une fois parait stationnaire autour de 0 
+
+
+## Vérification de la présence d'une tendance linéaire déterministe dans les données
+
+reg <- lm(formula = indice ~ dates)
+summary(reg)
+
+# Comme attendu vu les graphiques, il ne semble pas y avoir de telle tendance 
+# (coeff de dates par significatif)
+
+
+## Fonctions pour les tests de racine unitaire
+
+# Fonction effectuant le test d'autocorrélation des résidus 
+Qtests= function(series, k, fitdf=0) {
+  # series = série à analyser
+  # k = nombre maximal de lags à vérifier
+  # fitdf = nombre de coefficients estimés, à retirer des ddl pour le test
+  pvals = apply(matrix(1:k), 1, FUN=function(l) {
+    pval = if (l<=fitdf) NA else Box.test(series, lag=l, type="Ljung-Box", fitdf=fitdf)$p.value
+    return(c("lag"=l,"pval"=pval))
+  })
+  return(t(pvals))
+}
+
+# Fonction effectuant des tests ADF jusqu'à ce que l'un d'eux soit valide
+# Cad jusqu'à ce que les résidus ne soient plus corrélés
+adfTest_valid <- function(series, kmax, type) {
+  k <- 0
+  noautocorr <- 0
+  while (noautocorr == 0) {
+    cat(paste0("ADF with ", k," lags: residuals OK? "))
+    adf <- adfTest(series, lags =k, type = type)
+    pvals <- Qtests(adf@test$lm$residuals, 24, fitdf = length(adf@test$lm$coefficients))[,2]
+    if(sum(pvals<0.05, na.rm =T) == 0){
+      noautocorr <- 1; cat("OK \n")}
+    else cat("nope \n")
+    k <- k +1
+  }
+  return(adf)
+}
+
+## Test de racine unitaire sur la série non-différenciée
+
+# On teste sur la série non-différenciée pour la présence d'une racine unitaire
+# On utilise "nc" puisque d'après la régression effectuée, notre série ne contient
+# ni tendance temporelle déterministe ni ordonnée à l'origine
+# On teste jusqu'à 24 retards
+adf <- adfTest_valid(indice, 24, "nc")
+adf
+# Il a fallu ajouter 5 retards pour que le test soit valide
+# pval = 0.38 > 0.05, AHO, on a donc une racine unitaire dans la série non-différenciée
+
+
+## Test de racine unitaire sur la série différenciée 
+
+regd <- lm(formula = dindice ~ dates[-1])
+summary(regd)
+
+# Les coefficients de la régression sur le temps ne sont pas significatifs dans 
+# le cas de la série différenciée
+
+adfd <- adfTest_valid(dindice, 24, type ="nc")
+# Il a fallu ajouter 4 lags pour que le test soit valide
+adfd
+# pval < 0.01 donc <0.05, RHO, pas de racine unitaire 
+# Donc notre série différenciée semble être stationnaire
+# La série de base est donc I(1)
+
+
+### Recherche d'un modèle ARMA
+
+## Valeurs maximales de p & q
+
+x = dindice # Le x sur lequel on travaille est la série différenciée
+
+par(mfrow=c(1,2))
+acf(x); pacf(x)
+# Vu l'ACF, on prend qmax = 2 (en ignorant le pic significatif lointain, 
+# il est normal qu'il y en ait quelques uns à 5%, et on veut un modèle avec peu 
+# de paramètres)
+# Vu le PACF, on choisit pmax = 5 (en ignorant de la même manière les pics
+# lointains)
+pmax = 5
+qmax = 2
+
+## Utilisation de critères d'information pour déterminer les meilleurs modèles candidats
+
+mat <- matrix(NA, nrow = pmax+1, ncol = qmax+1)
+rownames(mat) <- paste0("p= ", 0:pmax)
+colnames(mat) <-paste0("q = ", 0:qmax)
+AICs <- mat
+BICs <- mat
+pqs <- expand.grid(0:pmax, 0:qmax) # toutes les combinaisons de p et q
+
+for (row in 1:dim(pqs)[1]){ #On boucle sur chaque pq
+  p <- pqs[row, 1] # On récupère p 
+  q <- pqs[row, 2] # On récupère q
+  estim <- try(arima(x, c(p,0,q), include.mean= F)) # Tenter d'estimer l'ARIMA
+  AICs[p+1, q+1] <- if(class(estim) == "try-error") NA else estim$aic #Assigne l'AIC
+  BICs[p+1, q+1] <- if(class(estim) == "try-error") NA else BIC(estim) # Assigne le BIC
+}
+
+AICs
+AICs == min(AICs)
+# Le modèle (5,0) minimise l'AIC, donc on le conserve:
+arima510 <- arima(indice, c(5,1,0), include.mean = F)
+
+BICs
+BICs == min(BICs)
+# Le modèle (1,1) minimise le BIC, donc on le conserve:
+arima111 <- arima(indice, c(1,1,1), include.mean = F)
+
+
+## Significativité des coefficients des modèles sélectionnés
+
+arima510
+0.1449/0.05353
+# Le modèle est bien ajusté puisque ar5/se(ar5) > 2 en valeur absolue
+
+arima111
+0.4/0.1
+0.71/0.0778
+# Les 2 coefficients sont bien ajustés (rapport > 2 en valeur absolue)
+
+
+## Autocorrélation des résidus
+
+Qtests(arima510$residuals, 24, fitdf = 5)
+# Pour chaque valeur de lag envisagée, on ne rejette pas l'hypothèse de non-corrélation
+# des résidus, l'ARIMA 510 est donc valide
+
+Qtests(arima111$residuals, 24, fitdf = 2)
+# Même conclusion pour l'ARIMA 111
+
+# On dispose donc à ce stade de 2 modèles semblant être valides
+
+### Prévision pour 2 périodes supplémentaires
+# On peut utiliser FORECAST mais aussi PREDICT 
+
+#6 - Equation vérifiée par la région de confiance sur 2 étapes
+
+
+#7 - Hypothèses utilisées
+
+
+#8 - Représentation graphique de la région et commentaire
+
+predict(arima510, n.ahead = 2)
+
+# Au moins les 2 commandes suivantes donnent des résultats cohérents
+
+forecast(arima510, h = 2, level = 95)
+autoplot(forecast(arima510, h =2, level = 95))
+
+# Intervalle de confiance plus large en T+2
+
+```
+
