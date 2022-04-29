@@ -164,55 +164,14 @@ Qtests(arima111$residuals, 24, fitdf = 2)
 
 # On dispose donc à ce stade de 2 modèles semblant être valides
 
-
-## Calcul du R2 pour départager les 2 modèles
-
-# Fonction calculcant le R2 ajusté
-adjR2 <- function(model){
-  ss_res <- sum(model$residuals^2) # Somme des résidus au carré
-  p <- model$arma[1] # Ordre AR
-  q <- model$arma[2] # Ordre MA
-  ss_tot <- sum(dindice[-c(1:max(p,q))]^2) # Somme des observations de l'échantillon au carré
-  n <- model$nobs - max(p,q) # Taille de l'échantillon
-  adj_r2 <- 1 - (ss_res/(n-p-q-1))/(ss_tot/(n-1)) # Calcul du R2 ajusté
-  return(adj_r2)
-}
-
-adjR2(arima510)
-
-adjR2(arima111)
-
-# Le R2 est légérement plus élevé pour le ARIMA 510 (mais de peu)
-# On aura donc tendance à garder ce modèle
-
-# Rajouterl a sortie suivante qui examine les résidus ? 
-checkresiduals(arima510)
-
-
 ### Prévision pour 2 périodes supplémentaires
 # On peut utiliser FORECAST mais aussi PREDICT 
 
 #6 - Equation vérifiée par la région de confiance sur 2 étapes
 
-# Slide 79 du chapitre 6 mais en univarié ? 
-# Cad [Valeur-estimee +/- 1.96 * racine(MSE)]
-# Où le 1.96 est le q(1-alpha/2) de la N(0,1) 
-# Et le MSE peut se calculer, par exemple, via la représentation MA infinie
-# ON peut utiliser l'exemple sur le drive pour voir à quoi ressemble l'EC
-# EN gros il est très simple en T+1 et un poil plus complexe en T+2
-# Y(T+1) - Y_hat(T+1) = epsilon(T+1)
-# Y(T+2) - Y_hat(T+2) = epsilon(T+2) + phi1*epsilon(T+1)
-
-# Attention, si on traite la région de confiance comme un truc 2D et pas 
-# 2 régions de confiance univarié, ca devient un peu plus compliqué (avec
-# une loi du chi2)
 
 #7 - Hypothèses utilisées
 
-# Innovations indépendantes et gaussiennes iid
-# Donc les epsilont des 2 périodes qu'on doit prévoir suivent une loi gaussienne
-# centrée de matrice de variance covariance grand sigma
-# Modèle bien identifié 
 
 #8 - Représentation graphique de la région et commentaire
 
@@ -223,12 +182,4 @@ predict(arima510, n.ahead = 2)
 forecast(arima510, h = 2, level = 95)
 autoplot(forecast(arima510, h =2, level = 95))
 
-# (Logiquement elle devrait devenir plus large en T+2)
-
-
-#9 - Question ouverte
-
-# Vu les réponses données dans le projet sur le drive ayant obtenu 17/20
-# C'est lié à la causalité au sens de Granger qu'on a pas encore vue en cours
-# Les concepts ne sont pas très compliqués. On utilise un test de Wald pour vérifier
-# si une variable est utile pour prédire l'autre
+# Intervalle de confiance plus large en T+2
