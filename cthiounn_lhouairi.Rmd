@@ -57,6 +57,25 @@ Qtests= function(series, k, fitdf=0) {
   })
   return(t(pvals))
 }
+
+adfTest_valid <- function(series, kmax, type) {
+  k <- 0
+  noautocorr <- 0
+  while (noautocorr == 0) {
+    cat(paste0("ADF with ", k," lags: residuals OK? "))
+    adf <- adfTest(series, lags =k, type = type)
+    pvals <- Qtests(adf@test$lm$residuals, 24, fitdf = length(adf@test$lm$coefficients))[,2]
+    if(sum(pvals<0.05, na.rm =T) == 0){
+      noautocorr <- 1; cat("OK \n")}
+    else cat("nope \n")
+    k <- k +1
+  }
+  return(adf)
+}
+adf <- adfTest_valid(indice, 24, "nc")
+
+adfd <- adfTest_valid(dindice, 24, type ="nc")
+# Il a fallu ajouter 4 lags pour que le test soit valide
 ```
 
 \newpage
@@ -84,59 +103,26 @@ Nous testons alors la présence d'une composante stochastique à l'aide des test
 
 Les tests de DF augmentés ne sont valides que si les résidus ne sont pas corrélés. On effectue donc des tests incorporant de plus en plus de retards jusqu'à ce qu'un test soit valide (résidus non-corrélés). La vérification de la non-corrélation des résidus se fait grâce à un test de Ljung-Box.
 Puisque ni ordonnée à l'origine ni tendance déterministe ne sont significatifs, la spécification du test de DF est "nc". C'est-à-dire qu'on inclut dans les hypothèses nulles et alternatives ni ordonnée à l'origine ni tendance déterministe linéaire. 
-Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 5 retards. La p-value associée est de 0.38, largement supérieure au seuil usuel de 5%. Par conséquent, on ne rejette pas l'hypothèse de nulle de non-stationnarité. Il semble donc que la série initiale est non-stationnaire.
+Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 5 retards (voir \@ref(testindice) pour la sortie du test). La p-value associée est de 0.38, largement supérieure au seuil usuel de 5%. Par conséquent, on ne rejette pas l'hypothèse de nulle de non-stationnarité. Il semble donc que la série initiale est non-stationnaire.
 
-```
-Title:
- Augmented Dickey-Fuller Test
-
-Test Results:
-  PARAMETER:
-    Lag Order: 5
-  STATISTIC:
-    Dickey-Fuller: -0.73
-  P VALUE:
-    0.3837 
-```
 
 ### 2.1 Stationnarité de la série différenciée {-}
 
 Nous effectuons la même méthodologie que sur la série brute et commençons par tester la présence d'une tendance linéaire déterministe. La régression linéaire conduit également des coefficients non significatifs aux seuils usuels. On conclut à nouveau à l'absence d'une tendance linéaire déterministe pour la série différenciée. Le tableau des résultats de cette régression linéaire est disponible en annexe \@ref(regdindice).
 
 À nouveau, la spécification du test de DF est "nc". 
-Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 4 retards. La p-value associée à ce test est de 0.01, on rejette donc l'hypothèse nulle à tous les seuils usuels. Puisque l'hypothèse nulle est la non-stationnarité, il semble donc que la série différenciée soit stationnaire.  
 
-```
-Title:
- Augmented Dickey-Fuller Test
+| Test | Retards | Stat | P-valeur |
+|------:|:-----:|:---------:|:------:|
+|   ADF  |  4  |    -12.356   |    0.01  |
+|  PP  |  5 |   -401.19   |   0.01  |
+|    KPSS  |    5 |     0.027926   |     0.1  |
 
-Test Results:
-  PARAMETER:
-    Lag Order: 4
-  STATISTIC:
-    Dickey-Fuller: -12.356
-  P VALUE:
-    0.01 
-```
-
-Le test de Phillips-Perron nous mène à la même conclusion. Il inclut 5 retards et conduit à rejeter l'hypothèse nulle de non-stationnarité (p-value=0.01).
-
-```
-	Phillips-Perron Unit Root Test
-
-data:  dindice
-Dickey-Fuller Z(alpha) = -401.19, Truncation lag parameter = 5, p-value = 0.01
-alternative hypothesis: stationary
-```
-
+Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 4 retards. La p-value associée à ce test est de 0.01, on rejette donc l'hypothèse nulle à tous les seuils usuels. Puisque l'hypothèse nulle est la non-stationnarité, il semble donc que la série différenciée soit stationnaire (voir \@ref(testdindice) pour les sorties complètes).  
+Le test de Phillips-Perron nous mène à la même conclusion. Il inclut 5 retards et conduit à rejeter l'hypothèse nulle de non-stationnarité (p-value=0.01). 
 Enfin, Le test de stationnarité KPSS est associé à une p-value de 0.1. On ne rejette donc pas l'hypothèse nulle au seuil de 5%. Pour ce test, l'hypothèse nulle est la stationnarité et la série différenciée semble donc stationnaire.
 
-```
-	KPSS Test for Level Stationarity
 
-data:  dindice
-KPSS Level = 0.027926, Truncation lag parameter = 5, p-value = 0.1
-```
 
 Etant donné que les 3 tests utilisés mènent à la même conclusion, on est relativement confiants pour dire que la série différenciée est stationnaire. 
 
@@ -282,13 +268,37 @@ summary(reg)
 ```
 On ne peut pas rejeter l'hypothèse nulle que les coefficients sont nuls aux seuils usuels.
 
-## Régression linéaire sur la série diférenciée {#regdindice}
+## Régression linéaire sur la série différenciée {#regdindice}
 
 ```{r, echo = FALSE}
 regd <- lm(formula = dindice ~ dates[-1])
 summary(regd)
 ```
 On ne peut pas rejeter l'hypothèse nulle que les coefficients sont nuls aux seuils usuels.
+
+
+## Sortie du test ADF sur la série initiale {#testindice}
+
+```{r, echo = FALSE}
+adf
+```
+
+## Sorties de tests sur la série différenciée {#testdindice}
+
+
+```{r, echo = FALSE}
+adfd
+```
+
+```{r, echo = FALSE}
+pp.test(dindice)
+```
+
+
+
+```{r, echo = FALSE}
+kpss.test(dindice)
+```
 
 ## Autocorrélations ARIMA(5,1,0) {#corr510}
 
