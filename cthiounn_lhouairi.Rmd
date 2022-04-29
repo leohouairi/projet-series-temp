@@ -134,7 +134,7 @@ plot(cbind(indice, dindice), main="Série brute et série transformée")
 ```
 **Commentaires sur les graphiques**. 
 La série non-différenciée (indice, haut de la figure) est clairement non-stationnaire. Elle fait apparaître des tendances linéaires sur certains intervalles, tendances qui finissent par s'inverser, ce qui fait penser à une marche aléatoire.
-La série différenciée (dindice, bas de la figure) fait bien plus penser à une série stationnaire. Il reste cependant certaines valeurs extrêmes un peu avant 2010 et un peu après 2020 (crise des subprimes et confinement) 
+La série différenciée (dindice, bas de la figure) fait bien plus penser à une série stationnaire. Il reste cependant certaines valeurs extrêmes un peu avant 2010 et un peu après 2020 (crise des subprimes et confinement).
 
 # Partie 2 : Modèles ARMA {-}
 
@@ -159,37 +159,31 @@ Maintenant que nous avons choisi pmax = 5 et qmax = 2, nous utilisons les critè
 
 Avec le critère **AIC**, nous retenons un modèle ARMA(5,0) pour la série différenciée et donc un modèle ARIMA(5,1,0) pour la série initiale. La sortie ci-dessous indique les valeurs des coefficients de ce modèle. 
 
-```
-Call:
-arima(x = indice, order = c(5, 1, 0), include.mean = F)
 
-Coefficients:
-          ar1      ar2      ar3      ar4      ar5
-      -0.3166  -0.2305  -0.1163  -0.1750  -0.1449
-s.e.   0.0506   0.0531   0.0551   0.0545   0.0535
+|| ar1 | ar2 | ar3 | ar4 | ar5 |
+|----:|:------:|:-----:|:---------:|:------:|:------:|
+|coeff.|   -0.3166  |  -0.2305  |    -0.1163   |    -0.1750  | -0.1449 |
+|s.e.|  0.0506  |  0.0531 |   0.0551   |   0.0545  |0.0535|
+|t-stat|  -6,2569  |  -4,3409 |   -2,1107   |   -3,2110  |-2,7084|
+|p-valeur|    ***  |    *** |     ***   |     ***  | *** |
 
-sigma^2 estimated as 124.2:  log likelihood = -1474.59,  aic = 2961.19
-```
 
-Le modèle est bien ajusté car le coefficient d'ordre le plus élevé est significatif . En effet, sa t-statistique est supérieure à 1.96 en valeur absolue (elle vaut 0.1449/0.05035 = 2.88) et on peut donc rejeter l'hypothèse nulle de nullité du coefficient au seuil de 5%.
+Le modèle est bien ajusté car le coefficient d'ordre le plus élevé est significatif . En effet, sa t-statistique est supérieure à 1.96 en valeur absolue (elle vaut 0.1449/0.0535 = 2.71) et on peut donc rejeter l'hypothèse nulle de nullité du coefficient au seuil de 5%.
 
 Il faut alors vérifier que le modèle est valide, c'est-à-dire que les résidus ne sont pas corrélés. Un test de Ljung-Box pour des retards allant jusqu'à 24 est effectué. L'hypothèse nulle de non-corrélation des résidus n'est pas rejetée (voir annexe \@ref(corr510)). Par conséquent, on conclut que le modèle est valide.
 
 
 Avec le critère **BIC**, nous retenons un modèle ARMA(1,1) pour la série différenciée et donc un modèle ARIMA(1,1,1) pour la série initiale. La sortie ci-dessous indique les valeurs des coefficients de ce modèle. 
 
-```
-arima(x = indice, order = c(1, 1, 1), include.mean = F)
+|| ar1 | ma1 |
+|----:|:------:|:-----:|
+|coeff.|   0.4006  |  -0.7190  | 
+|s.e.|  0.1029  |  0.0778 | 
+|t-stat|  3,8931  |  -9,2416 |
+|p-valeur|    ***  |    *** | 
 
-Coefficients:
-         ar1      ma1
-      0.4006  -0.7190
-s.e.  0.1029   0.0778
 
-sigma^2 estimated as 126.1:  log likelihood = -1477.6,  aic = 2961.19
-```
-
-Les t-statistiques associés aux deux coefficients d'ordre les plus élevés sont supérieures à 1.96 en valeur absolue (elles valent 4 pour l'ar1 et 9.16 pour le ma1) et on peut donc rejeter à 5% l'hypothèse nulle de nullité de ces coefficients. Le modèle est donc bien ajusté.
+Les t-statistiques associés aux deux coefficients d'ordre les plus élevés sont supérieures à 1.96 en valeur absolue (elles valent 3.89 pour l'ar1 et 9.24 pour le ma1) et on peut donc rejeter à 5% l'hypothèse nulle de nullité de ces coefficients. Le modèle est donc bien ajusté.
 
 Comme précédemment, on vérifie que le modèle est valide via un test de Ljung-Box vérifiant la non-corrélation des résidus. À nouveau, l'hypothèse nulle de non-corrélation des résidus n'est rejetée pour aucun retard jusqu'à 24 et le modèle est donc valide (voir annexe \@ref(corr111)).
 
@@ -300,7 +294,11 @@ pp.test(dindice)
 kpss.test(dindice)
 ```
 
-## Autocorrélations ARIMA(5,1,0) {#corr510}
+## Modèle et autocorrélations ARIMA(5,1,0) {#corr510}
+
+```{r, echo = FALSE}
+arima510
+```
 
 ```{r, echo = FALSE}
 Qtests(arima510$residuals, 24, fitdf = 5)
@@ -308,7 +306,12 @@ Qtests(arima510$residuals, 24, fitdf = 5)
 
 L'hypothèse nulle d'absence de corrélation des résidus n'est jamais rejetée. 
 
-## Autocorrélations ARIMA(1,1,1) {#corr111}
+## Modèle et autocorrélations ARIMA(1,1,1) {#corr111}
+
+
+```{r, echo = FALSE}
+arima111
+```
 
 ```{r, echo = FALSE}
 Qtests(arima111$residuals, 24, fitdf = 2)
