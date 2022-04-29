@@ -37,11 +37,25 @@ dates_char <- data$mois
 dates_char[1]; dates_char[length(dates_char)] # Janvier 1990 à Février 2022
 dates <- as.yearmon(seq(from = 1990+0/12, to = 2022+1/12, by = 1/12))
 
-
 ## Premiers graphiques
 
 indice <- zoo(data$valeur, order.by = dates) # C'est bien la liste précédente qui est utile
 dindice <- diff(indice, 1) # Différence première
+
+arima510 <- arima(indice, c(5,1,0), include.mean = F)
+
+arima111 <- arima(indice, c(1,1,1), include.mean = F)
+
+Qtests= function(series, k, fitdf=0) {
+  # series = série à analyser
+  # k = nombre maximal de lags à vérifier
+  # fitdf = nombre de coefficients estimés, à retirer des ddl pour le test
+  pvals = apply(matrix(1:k), 1, FUN=function(l) {
+    pval = if (l<=fitdf) NA else Box.test(series, lag=l, type="Ljung-Box", fitdf=fitdf)$p.value
+    return(c("lag"=l,"pval"=pval))
+  })
+  return(t(pvals))
+}
 ```
 
 \newpage
@@ -130,7 +144,7 @@ Etant donné que les 3 tests utilisés mènent à la même conclusion, on est re
 
 ## 3 - Graphiques {-}
 
-```{R chronogramme, echo=FALSE, fig.cap="Chronogramme de la série brute et de la série différenciée", out.width = '100%'}
+```{R chronogramme, echo=FALSE, fig.cap="Chronogramme de la série brute et de la série différenciée", fig.pos = 'h!', out.width= "60%", fig.align = "center"}
 
 plot(cbind(indice, dindice), main="Série brute et série transformée")
 ```
@@ -138,11 +152,11 @@ plot(cbind(indice, dindice), main="Série brute et série transformée")
 La série non-différenciée (indice, haut de la figure) est clairement non-stationnaire. Elle fait apparaître des tendances linéaires sur certains intervalles, tendances qui finissent par s'inverser, ce qui fait penser à une marche aléatoire.
 La série différenciée (dindice, bas de la figure) fait bien plus penser à une série stationnaire. Il reste cependant certaines valeurs extrêmes un peu avant 2010 et un peu après 2020. 
 
-# Partie 2 : Modèles ARMA
+# Partie 2 : Modèles ARMA {-}
 
 ## 4 - Choix de l'ARMA {-}
 
-```{R ACF PACF, echo=FALSE, fig.cap="Autocorrélogramme et autocorélogramme partiel", out.width = '100%'}
+```{R ACF-PACF, echo=FALSE, fig.cap="Autocorrélogramme et autocorélogramme partiel", fig.pos = 'h!', out.width= "80%", fig.align = "center"}
 x = dindice # Le x sur lequel on travaille est la série différenciée
 
 par(mfrow=c(1,2))
@@ -172,13 +186,10 @@ s.e.   0.0506   0.0531   0.0551   0.0545   0.0535
 
 sigma^2 estimated as 124.2:  log likelihood = -1474.59,  aic = 2961.19
 ```
-```{r}
-0.1449/0.0535
-```
 
-Le modèle est bien ajusté car le coefficient d'ordre le plus élevé est significatif. En effet, sa t-statistique est supérieure à 1.96 en valeur absolue et on peut donc rejeter l'hypothèse nulle de nullité du coefficient au seuil de 5%.
+Le modèle est bien ajusté car le coefficient d'ordre le plus élevé est significatif . En effet, sa t-statistique est supérieure à 1.96 en valeur absolue (elle vaut 0.1449/0.05035 = 2.88) et on peut donc rejeter l'hypothèse nulle de nullité du coefficient au seuil de 5%.
 
-Il faut alors vérifier que le modèle est valide, c'est-à-dire que les résidus ne sont pas corrélés. Un test de Ljung-Box pour des retards allant jusqu'à 24 est effectué, et l'hypothèse nulle de non-corrélation des résidus ne sont pas rejetés. Par conséquent, on conclut que le modèle est valide.
+Il faut alors vérifier que le modèle est valide, c'est-à-dire que les résidus ne sont pas corrélés. Un test de Ljung-Box pour des retards allant jusqu'à 24 est effectué, et l'hypothèse nulle de non-corrélation des résidus ne sont pas rejetés (voir annexe \@ref(corr510)). Par conséquent, on conclut que le modèle est valide.
 
 
 Avec le critère **BIC**, nous retenons un modèle ARMA(1,1) pour la série différenciée et donc un modèle ARIMA(1,1,1) pour la série initiale. La sortie ci-dessous indique les valeurs des coefficients de ce modèle. 
@@ -193,13 +204,10 @@ s.e.  0.1029   0.0778
 
 sigma^2 estimated as 126.1:  log likelihood = -1477.6,  aic = 2961.19
 ```
-```{r}
-0.4/0.1
-0.71/0.0778
-```
-Les t-statistiques associés aux deux coefficients d'ordre les plus élevés sont supérieures à 1.96 en valeur absolue et on peut donc rejeter à 5% l'hypothèse nulle de nullité de ces coefficients. Le modèle est donc bien ajusté.
 
-Comme précédemment, on vérifie que le modèle est valide via un test de Ljung-Box vérifiant la no-corrélation des résidus. A nouveau, l'hypothèse nulle de non-corrélation des résidus n'est rejetée pour aucun retard jusqu'à 24 et le modèle est donc valide. 
+Les t-statistiques associés aux deux coefficients d'ordre les plus élevés sont supérieures à 1.96 en valeur absolue (elles valent 4 pour l'ar1 et 9.16 pour le ma1) et on peut donc rejeter à 5% l'hypothèse nulle de nullité de ces coefficients. Le modèle est donc bien ajusté.
+
+Comme précédemment, on vérifie que le modèle est valide via un test de Ljung-Box vérifiant la no-corrélation des résidus. A nouveau, l'hypothèse nulle de non-corrélation des résidus n'est rejetée pour aucun retard jusqu'à 24 et le modèle est donc valide (voir annexe \@ref(corr111)).
 
 Nous disposons à ce stade de deux modèles ARIMA différents, tous deux bien ajustés et valides. 
 L'étude de la série tronquée des observations antérieures à 2005 (date de coupure entre "le Passé" et "le Courant") nous donne par sélection par le BIC ou l'AIC, une modélisation ARIMA(1,1,1). Dans la suite du projet, nous présentons donc uniquement la modélisation ARIMA(1,1,1).
@@ -251,9 +259,7 @@ Les hypothèses utilisées pour obtenir cette région sont les suivantes :
 
 ## 8 - Représentation graphique de la région de confiance {-}
 
-``` 8. Représenter graphiquement cette région pour alpha = 95%. Commenter. ```
-
-```{R predict, echo=FALSE, fig.cap="Prédiction des mois de mars et d'avril 2022", fig.pos = 'h!', out.width= "60%"}
+```{R predict, echo=FALSE, fig.cap="Prédiction des mois de mars et d'avril 2022",  out.width= "60%", fig.align = "center"}
 arima111 <- arima(indice, c(1,1,1), include.mean = F)
 plot(forecast(arima111, h =2, level = 95), xlim=c(2020, 2022.2), main="Prédiction de l'IPI Fabrication de machines agricoles et forestières")
 ```
@@ -285,6 +291,22 @@ regd <- lm(formula = dindice ~ dates[-1])
 summary(regd)
 ```
 On ne peut pas rejeter l'hypothèse nulle que les coefficients sont nuls aux seuils usuels.
+
+## Autocorrélations ARIMA(5,1,0) {#corr510}
+
+```{r, echo = FALSE}
+Qtests(arima510$residuals, 24, fitdf = 5)
+```
+
+L'hypothèse nulle d'absence de corrélation des résidus n'est jamais rejetée. 
+
+## Autocorrélations ARIMA(1,1,1) {#corr111}
+
+```{r, echo = FALSE}
+Qtests(arima111$residuals, 24, fitdf = 2)
+```
+
+L'hypothèse nulle d'absence de corrélation des résidus n'est jamais rejetée. 
 
 ## Code utilisé
 
