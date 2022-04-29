@@ -254,11 +254,20 @@ Au temps T+2, la situation est un peu différente puisqu'il faut également pren
 $$ \tilde{X}_{T+2} = X_{T+2} - \hat{X}_{T+2|T} = \epsilon_{T+2} + \varphi\epsilon_{T+1}$$
 En notant $\boldsymbol{\tilde{X}} = (\tilde{X}_{T+1}, \tilde{X}_{T+2})'$, on a alors
 
-$$\boldsymbol{\tilde{X}} \sim \mathcal{N}(\begin{bmatrix} 0 \\ 0 \end{bmatrix}, \begin{bmatrix}
+$$\boldsymbol{\tilde{X}} \sim \mathcal{N}(0, \Sigma) $$
+Avec:
+
+$$\Sigma = \begin{bmatrix}
 \sigma^2_{\epsilon} & \phi\sigma^2_{\epsilon}\\
 \phi\sigma^2_{\epsilon} & (1+\phi^2)\sigma^2_{\epsilon}
-\end{bmatrix}) $$
-On note $\Sigma$ la matrice de variance co-variance ci-dessus. 
+\end{bmatrix}$$
+
+Si cette matrice est inversible, on a :
+$$\boldsymbol{\tilde{X}}^T\Sigma^{-1}\boldsymbol{\tilde{X}} \sim \chi(2)$$
+On peut alors utiliser cette statistique de test pour construire un intervalle de confiance bivarié pour les 2 valeurs futures. On peut également retrouver les intervalles de confiance univariés pour $X_{T+1}$ et $X_{T+2}$:
+
+$$IC_{95\%}(X_{T+1}) = [\hat{X}_{T+1|T} - 1.96 \times \hat{\sigma}_{\epsilon}, \hat{X}_{T+1|T} + 1.96 \times \hat{\sigma}_{\epsilon}]$$
+$$IC_{95\%}(X_{T+2}) = [\hat{X}_{T+2|T} - 1.96 \times \hat{\sigma}_{\epsilon} \times \sqrt{(1+\hat{\varphi}^2)}, \hat{X}_{T+2|T} + 1.96 \times \hat{\sigma}_{\epsilon} \times \sqrt{(1+\hat{\varphi}^2)}]$$
 
 ## 7 - Hypothèses
 
@@ -266,7 +275,7 @@ On note $\Sigma$ la matrice de variance co-variance ci-dessus.
 
 Les hypothèses utilisées pour obtenir cette région sont les suivantes : 
 
-1. On suppose que les $\varepsilon_t$ sont gaussiens iid.
+1. On suppose que les $\varepsilon_t$ sont gaussiens iid. Cette hypothèse est absolument centrale pour avoir un vecteur gaussien et en déduire des statistiques de test. 
 2. On suppose que les coefficients estimées sont les vrais coefficients du modèle et que le modèle st bien spécifié
 3. On suppose que la variance des $\varepsilon_t$ est non nulle et estimable par $\hat\sigma^2$
 
@@ -278,11 +287,14 @@ Les hypothèses utilisées pour obtenir cette région sont les suivantes :
 arima111 <- arima(indice, c(1,1,1), include.mean = F)
 plot(forecast(arima111, h =2, level = 95), xlim=c(2020, 2022.2), main="Prédiction de l'IPI Fabrication de machines agricoles et forestières")
 ```
+On affiche ci-dessus les 2 prédictions ainsi que leurs intervalles de confiance à 95%. L'ensemble de la série n'est pas affichée afin que les valeurs prédites soient bien visibles. On constate que l'intervalle de confiance est plus large pour la valeur en $T+2$ ce qui est logique: c'est cohérent avec les formules mathématiques et cela traduit notre plus grande incertitude à long-terme. 
 
 ## 9 - Question ouverte
 
 ``` 9. Question ouverte : soit Yt une série stationnaire disponible de t = 1 à T. On suppose que YT +1 est disponible plus rapidement que XT +1. Sous quelle(s) condition(s) cette information permet-elle d’améliorer la prévision de XT +1 ? Comment la (les) testeriez-vous ? ```
 
-Si $Y_t$ cause instantanément au sens de Granger à $X_t$, il est possible d'utiliser $Y_{T+1}$ pour améliorer la prédiction de $X_{T+1}$.
+Si $Y_t$ cause instantanément $X_t$ au sens de Granger, il est possible d'utiliser $Y_{T+1}$ pour améliorer la prédiction de $X_{T+1}$. 
+On peut utiliser les valeurs passées des deux séries pour tester si $Y_t$ cause $X_t$ au sens de Granger. Pour cela, on pourrait avoir recours au test de Wald, qui s'appuie sur les corrélations entre les erreurs. En effet, si $\epsilon_{X_t}$ et $\epsilon_{Y_t}$ ne sont pas corrélés, il n'est pas possible que $Y_t$ cause instantanément $X_t$ au sens de Granger. 
+
 
 # Annexe: code utilisé
