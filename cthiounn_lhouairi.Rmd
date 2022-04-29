@@ -2,6 +2,7 @@
 title: "Projet de Séries Temporelles: modélisation ARIMA"
 author: "Conrad Thiounn et Léo Houairi"
 date: "14/04/2022"
+geometry: margin=2cm
 output:
   bookdown::pdf_document2:
     toc: yes
@@ -64,7 +65,7 @@ Qtests= function(series, k, fitdf=0) {
 
 ## 1 - Série choisie {-}
 
-La série choisie représente l'indice de la production industrielle de la fabrication de machines agricoles et forestières, élaborée à partir des enquêtes de branche de l'Insee. Elle est exprimée en base 100, avec pour année de référence 2015 et a fait l'objet de deux corrections des variations saisonnières et des effets de calendrier (CVS-CJO) à l'aide de la méthode X13-Arima. Les corrections CVS-CJO ont été calculées sur deux sous-périodes dénommées "le Passé" et "le Courant" délimitées par l'année 2005. "Le Courant" est composé des observations de l'année 2005 et posterieures tandis que "le Passé" est composées des observations antérieurs à 2005. Les observations sont mensuelles et sont comprises entre janvier 1990 et février 2022.
+La série choisie représente l'indice de la production industrielle de la fabrication de machines agricoles et forestières, élaborée à partir des enquêtes de branche de l'Insee. Elle est exprimée en base 100, avec pour année de référence 2015 et a fait l'objet de deux corrections des variations saisonnières et des effets de calendrier (CVS-CJO) à l'aide de la méthode X13-Arima. Les corrections CVS-CJO ont été calculées sur deux sous-périodes dénommées "le Passé" et "le Courant" délimitées par l'année 2005. "Le Courant" est composé des observations de l'année 2005 et posterieures tandis que "le Passé" est composées des observations antérieures à 2005. Les observations sont mensuelles et sont comprises entre janvier 1990 et février 2022.
 
 
 La fabrication de machines agricoles et forestières est repertoriée dans la nomenclature d'activité française (NAF rév. 2) sous le poste 28.3. La nomenclature NAF Rév. 2 date de janvier 2008 : il est possible d'observer des ruptures de tendances liées à ce changement, dues à des éventuels changements entre la NAF Rév. 1 et la NAF Rev. 2, de reclassement de produits ou de classes.
@@ -79,7 +80,7 @@ La série choisie ne semble pas être stationnaire. Le chronogramme ressemble à
 
 Afin de statuer sur la stationnarité de la série initiale, nous testons dans un premier temps si la série présente une tendance linéaire déterministe en régressant la série sur le temps. La régression linéaire donne des coefficients non significatifs aux seuils usuels. On conclut donc à l'absence d'une tendance linéaire déterministe observable. Le tableau des résultats de cetter régression linéaire est disponible en annexe \@ref(regindice).
 
-Nous testons alors la présence d'une composante stochastique à l'aide des tests de Dickey-Fuller augmentés (DF) et de Phillips-Perron (PP).
+Nous testons alors la présence d'une composante stochastique à l'aide des tests de Dickey-Fuller augmentés (DF).
 
 Les tests de DF augmentés ne sont valides que si les résidus ne sont pas corrélés. On effectue donc des tests incorporant de plus en plus de retards jusqu'à ce qu'un test soit valide (résidus non-corrélés). La vérification de la non-corrélation des résidus se fait grâce à un test de Ljung-Box.
 Puisque ni ordonnée à l'origine ni tendance déterministe ne sont significatifs, la spécification du test de DF est "nc". C'est-à-dire qu'on inclut dans les hypothèses nulles et alternatives ni ordonnée à l'origine ni tendance déterministe linéaire. 
@@ -98,14 +99,11 @@ Test Results:
     0.3837 
 ```
 
-** Du coup on parle du test de PP mais on ne l'utilise pas sur la série brute ?**
-
-
 ### 2.1 Stationnarité de la série différenciée {-}
 
-Nous effectuons la même méthodologie que sur la série brute et commençons par tester la présence d'une tendance linéaire déterministe. La régression linéaire conduit également des coefficients non significatifs aux seuils usuels. On conclut à nouveau à l'absence d'une tendance linéaire déterministe pour la série différenciée. Le tableau des résultats de cetter régression linéaire est disponible en annexe \@ref(regdindice).
+Nous effectuons la même méthodologie que sur la série brute et commençons par tester la présence d'une tendance linéaire déterministe. La régression linéaire conduit également des coefficients non significatifs aux seuils usuels. On conclut à nouveau à l'absence d'une tendance linéaire déterministe pour la série différenciée. Le tableau des résultats de cette régression linéaire est disponible en annexe \@ref(regdindice).
 
-A nouveau, la spécification du test de DF est "nc". 
+À nouveau, la spécification du test de DF est "nc". 
 Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 4 retards. La p-value associée à ce test est de 0.01, on rejette donc l'hypothèse nulle à tous les seuils usuels. Puisque l'hypothèse nulle est la non-stationnarité, il semble donc que la série différenciée soit stationnaire.  
 
 ```
@@ -121,7 +119,7 @@ Test Results:
     0.01 
 ```
 
-Le test de Phillips-Perron nous mène la même conclusion. Il inclut 5 retards et conduit à rejeter l'hypothèse nulle de non-stationnarité (p-value=0.01).
+Le test de Phillips-Perron nous mène à la même conclusion. Il inclut 5 retards et conduit à rejeter l'hypothèse nulle de non-stationnarité (p-value=0.01).
 
 ```
 	Phillips-Perron Unit Root Test
@@ -130,7 +128,7 @@ data:  dindice
 Dickey-Fuller Z(alpha) = -401.19, Truncation lag parameter = 5, p-value = 0.01
 alternative hypothesis: stationary
 ```
-l
+
 Enfin, Le test de stationnarité KPSS est associé à une p-value de 0.1. On ne rejette donc pas l'hypothèse nulle au seuil de 5%. Pour ce test, l'hypothèse nulle est la stationnarité et la série différenciée semble donc stationnaire.
 
 ```
@@ -150,7 +148,7 @@ plot(cbind(indice, dindice), main="Série brute et série transformée")
 ```
 **Commentaires sur les graphiques**. 
 La série non-différenciée (indice, haut de la figure) est clairement non-stationnaire. Elle fait apparaître des tendances linéaires sur certains intervalles, tendances qui finissent par s'inverser, ce qui fait penser à une marche aléatoire.
-La série différenciée (dindice, bas de la figure) fait bien plus penser à une série stationnaire. Il reste cependant certaines valeurs extrêmes un peu avant 2010 et un peu après 2020. 
+La série différenciée (dindice, bas de la figure) fait bien plus penser à une série stationnaire. Il reste cependant certaines valeurs extrêmes un peu avant 2010 et un peu après 2020 (crise des subprimes et confinement) 
 
 # Partie 2 : Modèles ARMA {-}
 
@@ -165,10 +163,10 @@ acf(x,main="Autocorrélogramme"); pacf(x,main="Autocorrélogramme partiel")
 
 L'analyse de l'autocorrélogramme empirique, conjointement avec l'autocorrélogramme partiel empirique ne nous permet pas de nous diriger d'emblée vers une modélisation par un modèle AR ou  un modèle MA. Nous allons donc avoir recours à des modèles ARMA (ARMA pour la série différenciée, donc ARIMA pour la série brute). Noter que l'abscisse du graphique est ici en années et non en mois. 
 
-* L'étude de l'autocorrélogramme empirique nous conduit à choisir qmax = 2. Nous choisissons d'ignorer la valeur très légèrement significative à 24 mois. 
-* L'étude de l'autocorrélogramme partiel nous conduit à choisir pmax = 5. Ici également, nous choisissons d'ignorer les valeurs légèrement significatives à des retards de 1.5 et 2 années.
+* L'étude de l'autocorrélogramme empirique nous conduit à choisir qmax = 2. Nous choisissons d'ignorer la valeur très légèrement significative à 24 mois car il n'est pas impossible à 95% d'avoir une valeur faussement significative.
+* L'étude de l'autocorrélogramme partiel empirique nous conduit à choisir pmax = 5. Ici également, nous choisissons d'ignorer les valeurs légèrement significatives à des retards de 1.5 et 2 années.
 
-Des valeurs significatives pour des retards élevés pourraient signaler une certaine saisonnalité. Mais nous choisissons de ne pas explorer cette voie étant donnée que notre série est censée être désaisonnalisée et que l'énoncé demande d'étudier un ARIMA.
+Des valeurs significatives pour des retards élevés pourraient signaler une certaine saisonnalité. Mais nous choisissons de ne pas explorer cette voie étant donnée que notre série est censée être désaisonnalisée (il peut subsister une saisonnalité résiduelle après les corrections CVS-CJO) et que l'énoncé demande d'étudier un ARIMA.
 
 Maintenant que nous avons choisir pmax = 5 et qmax = 2, nous utilisons les critères AIC et BIC pour sélectionner des modèles. Ces critères doivent être minimisés.
 
@@ -189,7 +187,7 @@ sigma^2 estimated as 124.2:  log likelihood = -1474.59,  aic = 2961.19
 
 Le modèle est bien ajusté car le coefficient d'ordre le plus élevé est significatif . En effet, sa t-statistique est supérieure à 1.96 en valeur absolue (elle vaut 0.1449/0.05035 = 2.88) et on peut donc rejeter l'hypothèse nulle de nullité du coefficient au seuil de 5%.
 
-Il faut alors vérifier que le modèle est valide, c'est-à-dire que les résidus ne sont pas corrélés. Un test de Ljung-Box pour des retards allant jusqu'à 24 est effectué, et l'hypothèse nulle de non-corrélation des résidus ne sont pas rejetés (voir annexe \@ref(corr510)). Par conséquent, on conclut que le modèle est valide.
+Il faut alors vérifier que le modèle est valide, c'est-à-dire que les résidus ne sont pas corrélés. Un test de Ljung-Box pour des retards allant jusqu'à 24 est effectué. L'hypothèse nulle de non-corrélation des résidus n'est pas rejeté (voir annexe \@ref(corr510)). Par conséquent, on conclut que le modèle est valide.
 
 
 Avec le critère **BIC**, nous retenons un modèle ARMA(1,1) pour la série différenciée et donc un modèle ARIMA(1,1,1) pour la série initiale. La sortie ci-dessous indique les valeurs des coefficients de ce modèle. 
@@ -207,7 +205,7 @@ sigma^2 estimated as 126.1:  log likelihood = -1477.6,  aic = 2961.19
 
 Les t-statistiques associés aux deux coefficients d'ordre les plus élevés sont supérieures à 1.96 en valeur absolue (elles valent 4 pour l'ar1 et 9.16 pour le ma1) et on peut donc rejeter à 5% l'hypothèse nulle de nullité de ces coefficients. Le modèle est donc bien ajusté.
 
-Comme précédemment, on vérifie que le modèle est valide via un test de Ljung-Box vérifiant la no-corrélation des résidus. A nouveau, l'hypothèse nulle de non-corrélation des résidus n'est rejetée pour aucun retard jusqu'à 24 et le modèle est donc valide (voir annexe \@ref(corr111)).
+Comme précédemment, on vérifie que le modèle est valide via un test de Ljung-Box vérifiant la non-corrélation des résidus. À nouveau, l'hypothèse nulle de non-corrélation des résidus n'est rejetée pour aucun retard jusqu'à 24 et le modèle est donc valide (voir annexe \@ref(corr111)).
 
 Nous disposons à ce stade de deux modèles ARIMA différents, tous deux bien ajustés et valides. 
 L'étude de la série tronquée des observations antérieures à 2005 (date de coupure entre "le Passé" et "le Courant") nous donne par sélection par le BIC ou l'AIC, une modélisation ARIMA(1,1,1). Dans la suite du projet, nous présentons donc uniquement la modélisation ARIMA(1,1,1).
@@ -254,7 +252,7 @@ $$IC_{95\%}(X_{T+2}) = [\hat{X}_{T+2|T} - 1.96 \times \hat{\sigma}_{\epsilon} \t
 Les hypothèses utilisées pour obtenir cette région sont les suivantes : 
 
 1. On suppose que les $\varepsilon_t$ sont gaussiens iid. Cette hypothèse est absolument centrale pour avoir un vecteur gaussien et en déduire des statistiques de test. 
-2. On suppose que les coefficients estimées sont les vrais coefficients du modèle et que le modèle st bien spécifié
+2. On suppose que les coefficients estimés sont les vrais coefficients du modèle et que le modèle est bien spécifié
 3. On suppose que la variance des $\varepsilon_t$ est non nulle et estimable par $\hat\sigma^2$
 
 ## 8 - Représentation graphique de la région de confiance {-}
