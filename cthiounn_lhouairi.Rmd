@@ -1,5 +1,5 @@
 ---
-title: "Projet de Séries Temporelles: modélisation ARMA"
+title: "Projet de Séries Temporelles: modélisation ARIMA"
 author: "Conrad Thiounn et Léo Houairi"
 date: "14/04/2022"
 output:
@@ -63,8 +63,9 @@ La fabrication comprend notamment la fabrication de charrues, de tracteurs et de
 
 ``` Transformer si besoin la série pour la rendre stationnaire (différentiation, suppression de la tendance déterministe, etc.). Justifier soigneusement vos choix.```
 
-La série choisie ne semble pas être stationnaire. Le chronogramme ressemble à une marche aléatoire.
-```{R image chronogramme, echo=FALSE, fig.cap="Chronogramme de la série brute", out.width = '100%'}
+La série choisie ne semble pas être stationnaire. Le chronogramme ressemble à une marche aléatoire (voir \@ref(fig:imgchronogramme).
+
+```{R imgchronogramme, echo=FALSE, fig.cap="Chronogramme de la série brute", out.width = '100%'}
 #knitr::include_graphics("chronogramme_serie_brut.png")
 plot(indice, main="Série brute")
 
@@ -72,11 +73,19 @@ plot(indice, main="Série brute")
 
 ### 2.1 Non-stationnarité de la série initiale
 
-Afin de statuer sur la stationnarité de la série initiale, nous testons dans un premier temps si la série présente une tendance linéaire déterministe en régressant la série par le temps. La regression linéaire donne des coefficients non significatifs aux seuils usuels. Il n'est pas possible d'en déduire l'existence d'une tendance linéaire déterministe.
+Afin de statuer sur la stationnarité de la série initiale, nous testons dans un premier temps si la série présente une tendance linéaire déterministe en régressant la série sur le temps. La régression linéaire donne des coefficients non significatifs aux seuils usuels. On conclut donc à l'absence d'une tendance linéaire déterministe observable. 
 
-Nous testons alors la présence d'une composante stochastique à l'aide des tests de Dickey-Fuller augmentés et de Phillips-Perron.
+```{r, echo = FALSE}
+reg <- lm(formula = indice ~ dates)
+summary(reg)
+```
 
-Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 5 retards et nous propose de ne pas rejetter l'hypothèse nulle de non-stationnarité.
+
+Nous testons alors la présence d'une composante stochastique à l'aide des tests de Dickey-Fuller augmentés (DF) et de Phillips-Perron (PP).
+
+Les tests de DF augmentés ne sont valides que si les résidus ne sont pas corrélés. On effectue donc des tests incorporant de plus en plus de retards jusqu'à ce qu'un test soit valide (résidus non-corrélés). La vérification de la non-corrélation des résidus se fait grâce à un test de Ljung-Box.
+Puisque ni ordonnée à l'origine ni tendance déterministe ne sont significatifs, la spécification du test de DF est "nc". C'est-à-dire qu'on inclut dans les hypothèses nulles et alternatives ni ordonnée à l'origine ni tendance déterministe linéaire. 
+Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 5 retards. La p-value associée est de 0.38, largement supérieure au seuil usuel de 5%. Par conséquent, on ne rejette pas l'hypothèse de nulle de non-stationnarité. Il semble donc que la série initiale est non-stationnaire.
 
 ```
 Title:
@@ -91,11 +100,19 @@ Test Results:
     0.3837 
 ```
 
+** Du coup on parle du test de PP mais on ne l'utilise pas sur la série brute ?**
+
+
 ### 2.1 Stationnarité de la série différenciée
 
-Nous effectuons la même méthodologie que sur la série brute en testant en premier lieu la présence d'une tendance linéaire déterministe. La régression linéaire donne également des coefficients non significatifs aux seuils usuels, présageant l'inexistence d'une tendance linéaire déterministe de la série différenciée.
+Nous effectuons la même méthodologie que sur la série brute et commencons par tester la présence d'une tendance linéaire déterministe. La régression linéaire conduit également des coefficients non significatifs aux seuils usuels. On conclut à nouveau à l'absence d'une tendance linéaire déterministe pour la série différenciée.  
 
-Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 4 retards et nous propose de rejetter l'hypothèse nulle de non-stationnarité (p-value=0.01).
+```{r, echo = FALSE}
+regd <- lm(formula = dindice ~ dates[-1])
+summary(regd)
+```
+A nouveau, la spécification du test de DF est "nc". 
+Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 4 retards. La p-value associée à ce test est de 0.01, on rejette donc l'hypothèse nulle à tous les seuils usuels. Puisque l'hypothèse nulle est la non-stationnarité, il semble donc que la série différenciée soit stationnaire.  
 
 ```
 Title:
@@ -110,7 +127,7 @@ Test Results:
     0.01 
 ```
 
-Le test de Phillips-Perron donne la même conclusion, avec 5 retards en proposant de rejetter l'hypothèse nulle de non-stationnarité (p-value=0.01).
+Le test de Phillips-Perron nous mène la même conclusion. Il inclut 5 retards et conduit à rejeter l'hypothèse nulle de non-stationnarité (p-value=0.01).
 
 ```
 	Phillips-Perron Unit Root Test
@@ -119,9 +136,8 @@ data:  dindice
 Dickey-Fuller Z(alpha) = -401.19, Truncation lag parameter = 5, p-value = 0.01
 alternative hypothesis: stationary
 ```
-
-
-Le test de stationnarité KPSS nous propose de ne pas rejetter l'hypothèse nulle de stationnarité (p-value=0.1) au seuil de 5%.
+l
+Enfin, Le test de stationnarité KPSS est associé à une p-value de 0.1. On ne rejette donc pas l'hypothèse nulle au seuil de 5%. Pour ce test, l'hypothèse nulle est la stationnarité et la série différenciée semble donc stationnaire.
 
 ```
 	KPSS Test for Level Stationarity
@@ -130,6 +146,7 @@ data:  dindice
 KPSS Level = 0.027926, Truncation lag parameter = 5, p-value = 0.1
 ```
 
+Etant donné que les 3 tests utilisés mènent à la même conclusion, on est relativement confiants pour dire que la série différenciée est stationnaire. 
 
 ## 3 - Graphiques
 
@@ -139,6 +156,9 @@ KPSS Level = 0.027926, Truncation lag parameter = 5, p-value = 0.1
 
 plot(cbind(indice, dindice), main="Série brute et série transformée")
 ```
+**Commentaires sur les graphiques**. 
+La série non-différenciée (indice, haut de la figure) est clairement non-stationnaire. Elle fait apparaître des tendances linéaires sur certains intervalles, tendances qui finissent par s'inverser, ce qui fait penser à une marche aléatoire.
+La série différenciée (dindice, bas de la figure) fait bien plus penser à une série stationnaire. Il reste cependant certaines valeurs extrêmes un peu avant 2010 et un peu après 2020. 
 
 # Partie 2 : Modèles ARMA
 
@@ -146,16 +166,24 @@ plot(cbind(indice, dindice), main="Série brute et série transformée")
 
 ``` 4. Choisir, en le justifiant, un modèle ARMA(p,q) pour votre série corrigée Xt. Estimer les paramètres du modèle et vérifier sa validité. ```
 
-```{R ACF PACF, echo=FALSE, fig.cap="Autocorrélogramme et autoccorélogramme partiel", out.width = '100%'}
+```{R ACF PACF, echo=FALSE, fig.cap="Autocorrélogramme et autocorélogramme partiel", out.width = '100%'}
 x = dindice # Le x sur lequel on travaille est la série différenciée
 
 par(mfrow=c(1,2))
 acf(x,main="Autocorrélogramme"); pacf(x,main="Autocorrélogramme partiel")
 ```
 
-L'analyse de l'autocorrélogramme empirique, conjointement avec l'autocorrélogramme partiel empirique ne nous permet pas de nous diriger d'emblée vers une modélisation par un modèle AR ou à un modèle MA. Nous testons alors les modèles ARMA(p,q) avec pmax = 5, qmax = 2 et les critères AIC et BIC pour la sélection du modèle.
+L'analyse de l'autocorrélogramme empirique, conjointement avec l'autocorrélogramme partiel empirique ne nous permet pas de nous diriger d'emblée vers une modélisation par un modèle AR ou  un modèle MA. Nous allons donc avoir recours à des modèles ARMA (ARMA pour la série différenciée, donc ARIMA pour la série brute). Noter que l'abscisse du graphique est ici en années et non en mois. 
 
-Avec le critère AIC, nous retenons un modèle ARMA(5,0) pour la série différenciée et donc un modèle ARIMA(5,1,0) pour la série initiale. Le modèle est bien ajusté car les coefficients sont significatifs aux seuils usuels. Le modèle est également valide car les résidus ne sont pas autocorrelés.
+* L'étude de l'autocorrélogramme empirique nous conduit à choisir qmax = 2. Nous choisissons d'ignorer la valeur très légèrement significative à 24 mois. 
+* L'étude de l'autocorrélogramme partiel nous conduit à choisir pmax = 5. Ici également, nous choisissons d'ignorer les valeurs légèrement significatives à des retards de 1.5 et 2 années.
+
+Des valeurs significatives pour des retards élevés pourraient signaler une certaine saisonnalité. Mais nous choisissons de ne pas explorer cette voie étant donnée que notre série est censée être désaisonnalisée et que l'énoncé demande d'étudier un ARIMA.
+
+Maintenant que nous avons choisir pmax = 5 et qmax = 2, nous utilisons les critères AIC et BIC pour sélectionner des modèles. Ces critères doivent être minimisés.
+
+
+Avec le critère **AIC**, nous retenons un modèle ARMA(5,0) pour la série différenciée et donc un modèle ARIMA(5,1,0) pour la série initiale. La sortie ci-dessous indique les valeurs des coefficients de ce modèle. 
 
 ```
 Call:
@@ -168,8 +196,16 @@ s.e.   0.0506   0.0531   0.0551   0.0545   0.0535
 
 sigma^2 estimated as 124.2:  log likelihood = -1474.59,  aic = 2961.19
 ```
+```{r}
+0.1449/0.0535
+```
 
-Avec le critère BIC, nous retenons un modèle ARMA(1,1) pour la série différenciée et donc un modèle ARIMA(1,1,1) pour la série initiale. Le modèle est bien ajusté car les coefficients sont significatifs aux seuils usuels. Le modèle est également valide car les résidus ne sont pas autocorrelés.
+Le modèle est bien ajusté car le coefficient d'ordre le plus élevé est significatif. En effet, sa t-statistique est supérieure à 1.96 en valeur absolue et on peut donc rejeter l'hypothèse nulle de nullité du coefficient au seuil de 5%.
+
+Il faut alors vérifier que le modèle est valide, c'est-à-dire que les résidus ne sont pas corrélés. Un test de Ljung-Box pour des retards allant jusqu'à 24 est effectué, et l'hypothèse nulle de non-corrélation des résidus ne sont pas rejetés. Par conséquent, on conclut que le modèle est valide.
+
+
+Avec le critère **BIC**, nous retenons un modèle ARMA(1,1) pour la série différenciée et donc un modèle ARIMA(1,1,1) pour la série initiale. La sortie ci-dessous indique les valeurs des coefficients de ce modèle. 
 
 ```
 arima(x = indice, order = c(1, 1, 1), include.mean = F)
@@ -181,18 +217,28 @@ s.e.  0.1029   0.0778
 
 sigma^2 estimated as 126.1:  log likelihood = -1477.6,  aic = 2961.19
 ```
+```{r}
+0.4/0.1
+0.71/0.0778
+```
+Les t-statistiques associés aux deux coefficients d'ordre les plus élevés sont supérieures à 1.96 en valeur absolue et on peut donc rejeter à 5% l'hypothèse nulle de nullité de ces coefficients. Le modèle est donc bien ajusté.
 
-L'étude de la série tronquée des observations antérieures à 2005 (date de coupure entre "le Passé" et "le Courant") nous donne par sélection par le BIC ou l'AIC, une modélisation ARIMA(1,1,1). Dans la suite du projet, nous présentons donc uniquement la modèlisation ARIMA(1,1,1).
+Comme précédemment, on vérifie que le modèle est valide via un test de Ljung-Box vérifiant la no-corrélation des résidus. A nouveau, l'hypothèse nulle de non-corrélation des résidus n'est rejetée pour aucun retard jusqu'à 24 et le modèle est donc valide. 
+
+Nous disposons à ce stade de deux modèles ARIMA différents, tous deux bien ajustés et valides. 
+L'étude de la série tronquée des observations antérieures à 2005 (date de coupure entre "le Passé" et "le Courant") nous donne par sélection par le BIC ou l'AIC, une modélisation ARIMA(1,1,1). Dans la suite du projet, nous présentons donc uniquement la modélisation ARIMA(1,1,1).
+
 
 ## 5 - Ecriture de l'ARIMA
 
 ``` 5. Exprimer le modèle ARIMA(p,d,q) pour la série choisie. ```
 
-Pour le modèle ARIMA(1,1,1):
-$\left( 1 -  \varphi L \right)
+Nous donnons ci-dessous l'écriture du modèle ARIMA(1,1,1):
+
+$$\left( 1 -  \varphi L \right)
 (1-L) X_t
-= \left( 1 +\theta L \right) \varepsilon_t \,$
-avec $\hat\varphi = 0.4006$ et $\hat\theta =  -0.7190$
+= \left( 1 +\theta L \right) \varepsilon_t \,$$
+avec $\hat\varphi = 0.4006$ et $\hat\theta =  -0.7190$ et où L est l'opérateur de retard (souvent noté B).
 
 # Partie 3 : Prévision
 
@@ -201,7 +247,18 @@ avec $\hat\varphi = 0.4006$ et $\hat\theta =  -0.7190$
 ``` 6. Ecrire l’équation vérifiée par la région de confiance de niveau alpha sur les valeurs futures (XT +1, XT +2). ```
 
 Pour le modèle ARIMA(1,1,1):
+On note $\hat{X}_{T+1|T}$ la meilleure prédiction de X au temps T+1 sachant les X précédents. On néglige l'incertitude due à la variance dans l'estimation des paramètres du modèle. On sait que la meilleure prédiction à l'horizon T+1 ne peut pas prendre en compte l'innovation en T+1, dit autrement: 
 
+$$ \tilde{X}_{T+1} = X_{T+1} - \hat{X}_{T+1|T} = \epsilon_{T+1}$$
+Au temps T+2, la situation est un peu différente puisqu'il faut également prendre en compte l'innovation au temps T+1. On a:
+$$ \tilde{X}_{T+2} = X_{T+2} - \hat{X}_{T+2|T} = \epsilon_{T+2} + \varphi\epsilon_{T+1}$$
+En notant $\boldsymbol{\tilde{X}} = (\tilde{X}_{T+1}, \tilde{X}_{T+2})'$, on a alors
+
+$$\boldsymbol{\tilde{X}} \sim \mathcal{N}(\begin{bmatrix} 0 \\ 0 \end{bmatrix}, \begin{bmatrix}
+\sigma^2_{\epsilon} & \phi\sigma^2_{\epsilon}\\
+\phi\sigma^2_{\epsilon} & (1+\phi^2)\sigma^2_{\epsilon}
+\end{bmatrix}) $$
+On note $\Sigma$ la matrice de variance co-variance ci-dessus. 
 
 ## 7 - Hypothèses
 
@@ -210,8 +267,8 @@ Pour le modèle ARIMA(1,1,1):
 Les hypothèses utilisées pour obtenir cette région sont les suivantes : 
 
 1. On suppose que les $\varepsilon_t$ sont gaussiens iid.
-2. On suppose que les coefficients estimées sont les vraies coefficients du modèle
-3. la variance des $\varepsilon_t$ est non nulle et estimable par $\hat\sigma^2$
+2. On suppose que les coefficients estimées sont les vrais coefficients du modèle et que le modèle st bien spécifié
+3. On suppose que la variance des $\varepsilon_t$ est non nulle et estimable par $\hat\sigma^2$
 
 ## 8 - Graphique région
 
