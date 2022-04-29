@@ -78,7 +78,7 @@ La série choisie ne semble pas être stationnaire. Le chronogramme ressemble à
 
 ### 2.1 Non-stationnarité de la série initiale {-}
 
-Afin de statuer sur la stationnarité de la série initiale, nous testons dans un premier temps si la série présente une tendance linéaire déterministe en régressant la série sur le temps. La régression linéaire donne des coefficients non significatifs aux seuils usuels. On conclut donc à l'absence d'une tendance linéaire déterministe observable. Le tableau des résultats de cetter régression linéaire est disponible en annexe \@ref(regindice).
+Afin de statuer sur la stationnarité de la série initiale, nous testons dans un premier temps si la série présente une tendance linéaire déterministe en régressant la série sur le temps. La régression linéaire donne des coefficients non significatifs aux seuils usuels. On conclut donc à l'absence d'une tendance linéaire déterministe observable. Le tableau des résultats de cette régression linéaire est disponible en annexe \@ref(regindice).
 
 Nous testons alors la présence d'une composante stochastique à l'aide des tests de Dickey-Fuller augmentés (DF).
 
@@ -164,11 +164,11 @@ acf(x,main="Autocorrélogramme"); pacf(x,main="Autocorrélogramme partiel")
 L'analyse de l'autocorrélogramme empirique, conjointement avec l'autocorrélogramme partiel empirique ne nous permet pas de nous diriger d'emblée vers une modélisation par un modèle AR ou  un modèle MA. Nous allons donc avoir recours à des modèles ARMA (ARMA pour la série différenciée, donc ARIMA pour la série brute). Noter que l'abscisse du graphique est ici en années et non en mois. 
 
 * L'étude de l'autocorrélogramme empirique nous conduit à choisir qmax = 2. Nous choisissons d'ignorer la valeur très légèrement significative à 24 mois car il n'est pas impossible à 95% d'avoir une valeur faussement significative.
-* L'étude de l'autocorrélogramme partiel empirique nous conduit à choisir pmax = 5. Ici également, nous choisissons d'ignorer les valeurs légèrement significatives à des retards de 1.5 et 2 années.
+* L'étude de l'autocorrélogramme partiel empirique nous conduit à choisir pmax = 5. Ici également, nous choisissons d'ignorer les valeurs légèrement significatives à des retards de 1.5 et 2 années car l'intervalle de confiance est relativement petit et conduit à avoir plus fréquemment des valeurs faussement significatives.
 
 Des valeurs significatives pour des retards élevés pourraient signaler une certaine saisonnalité. Mais nous choisissons de ne pas explorer cette voie étant donnée que notre série est censée être désaisonnalisée (il peut subsister une saisonnalité résiduelle après les corrections CVS-CJO) et que l'énoncé demande d'étudier un ARIMA.
 
-Maintenant que nous avons choisir pmax = 5 et qmax = 2, nous utilisons les critères AIC et BIC pour sélectionner des modèles. Ces critères doivent être minimisés.
+Maintenant que nous avons choisi pmax = 5 et qmax = 2, nous utilisons les critères AIC et BIC pour sélectionner des modèles. Ces critères doivent être minimisés.
 
 
 Avec le critère **AIC**, nous retenons un modèle ARMA(5,0) pour la série différenciée et donc un modèle ARIMA(5,1,0) pour la série initiale. La sortie ci-dessous indique les valeurs des coefficients de ce modèle. 
@@ -187,7 +187,7 @@ sigma^2 estimated as 124.2:  log likelihood = -1474.59,  aic = 2961.19
 
 Le modèle est bien ajusté car le coefficient d'ordre le plus élevé est significatif . En effet, sa t-statistique est supérieure à 1.96 en valeur absolue (elle vaut 0.1449/0.05035 = 2.88) et on peut donc rejeter l'hypothèse nulle de nullité du coefficient au seuil de 5%.
 
-Il faut alors vérifier que le modèle est valide, c'est-à-dire que les résidus ne sont pas corrélés. Un test de Ljung-Box pour des retards allant jusqu'à 24 est effectué. L'hypothèse nulle de non-corrélation des résidus n'est pas rejeté (voir annexe \@ref(corr510)). Par conséquent, on conclut que le modèle est valide.
+Il faut alors vérifier que le modèle est valide, c'est-à-dire que les résidus ne sont pas corrélés. Un test de Ljung-Box pour des retards allant jusqu'à 24 est effectué. L'hypothèse nulle de non-corrélation des résidus n'est pas rejetée (voir annexe \@ref(corr510)). Par conséquent, on conclut que le modèle est valide.
 
 
 Avec le critère **BIC**, nous retenons un modèle ARMA(1,1) pour la série différenciée et donc un modèle ARIMA(1,1,1) pour la série initiale. La sortie ci-dessous indique les valeurs des coefficients de ce modèle. 
