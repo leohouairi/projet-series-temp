@@ -87,7 +87,7 @@ adfd <- adfTest_valid(dindice, 24, type ="nc")
 La série choisie représente l'indice de la production industrielle de la fabrication de machines agricoles et forestières, élaborée à partir des enquêtes de branche de l'Insee. Elle est exprimée en base 100, avec pour année de référence 2015 et a fait l'objet de deux corrections des variations saisonnières et des effets de calendrier (CVS-CJO) à l'aide de la méthode X13-Arima. Les corrections CVS-CJO ont été calculées sur deux sous-périodes dénommées "le Passé" et "le Courant" délimitées par l'année 2005. "Le Courant" est composé des observations de l'année 2005 et posterieures tandis que "le Passé" est composées des observations antérieures à 2005. Les observations sont mensuelles et sont comprises entre janvier 1990 et février 2022.
 
 
-La fabrication de machines agricoles et forestières est repertoriée dans la nomenclature d'activité française (NAF rév. 2) sous le poste 28.3. La nomenclature NAF Rév. 2 date de janvier 2008 : il est possible d'observer des ruptures de tendances liées à ce changement, dues à des éventuels changements entre la NAF Rév. 1 et la NAF Rev. 2, de reclassement de produits ou de classes.
+La fabrication de machines agricoles et forestières est repertoriée dans la nomenclature d'activité française (NAF rév. 2) sous le poste 28.3. La nomenclature NAF Rév. 2 date de janvier 2008: il est possible d'observer des ruptures de tendances liées à ce changement, dues à des éventuels changements entre la NAF Rév. 1 et la NAF Rev. 2, de reclassement de produits ou de classes.
 
 La fabrication comprend notamment la fabrication de charrues, de tracteurs et de machines à traire. L'analyse temporelle de l'indice de la production industrielle permet de rendre compte de l'évolution de la valeur ajoutée du secteur concerné.
 
@@ -103,7 +103,7 @@ Nous testons alors la présence d'une composante stochastique à l'aide des test
 
 Les tests de DF augmentés ne sont valides que si les résidus ne sont pas corrélés. On effectue donc des tests incorporant de plus en plus de retards jusqu'à ce qu'un test soit valide (résidus non-corrélés). La vérification de la non-corrélation des résidus se fait grâce à un test de Ljung-Box.
 Puisque ni ordonnée à l'origine ni tendance déterministe ne sont significatifs, la spécification du test de DF est "nc". C'est-à-dire qu'on inclut dans les hypothèses nulles et alternatives ni ordonnée à l'origine ni tendance déterministe linéaire. 
-Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 5 retards (voir \@ref(testindice) pour la sortie du test). La p-value associée est de 0.38, largement supérieure au seuil usuel de 5%. Par conséquent, on ne rejette pas l'hypothèse de nulle de non-stationnarité. Il semble donc que la série initiale est non-stationnaire.
+Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 5 retards (voir l'annexe \@ref(testindice) pour la sortie du test). La p-value associée est de 0.38, largement supérieure au seuil usuel de 5%. Par conséquent, on ne rejette pas l'hypothèse de nulle de non-stationnarité. Il semble donc que la série initiale est non-stationnaire.
 
 
 ### 2.1 Stationnarité de la série différenciée {-}
@@ -118,7 +118,7 @@ Nous effectuons la même méthodologie que sur la série brute et commençons pa
 |  PP  |  5 |   -401.19   |   0.01  |
 |    KPSS  |    5 |     0.027926   |     0.1  |
 
-Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 4 retards. La p-value associée à ce test est de 0.01, on rejette donc l'hypothèse nulle à tous les seuils usuels. Puisque l'hypothèse nulle est la non-stationnarité, il semble donc que la série différenciée soit stationnaire (voir \@ref(testdindice) pour les sorties complètes).  
+Le premier test de Dickey-Fuller valide avec des résidus non corrélés incorpore 4 retards. La p-value associée à ce test est de 0.01, on rejette donc l'hypothèse nulle à tous les seuils usuels. Puisque l'hypothèse nulle est la non-stationnarité, il semble donc que la série différenciée soit stationnaire (voir l'annexe \@ref(testdindice) pour les sorties complètes des 3 tests).  
 Le test de Phillips-Perron nous mène à la même conclusion. Il inclut 5 retards et conduit à rejeter l'hypothèse nulle de non-stationnarité (p-value=0.01). 
 Enfin, Le test de stationnarité KPSS est associé à une p-value de 0.1. On ne rejette donc pas l'hypothèse nulle au seuil de 5%. Pour ce test, l'hypothèse nulle est la stationnarité et la série différenciée semble donc stationnaire.
 
@@ -233,7 +233,7 @@ Les hypothèses utilisées pour obtenir cette région sont les suivantes :
 
 1. On suppose que les $\varepsilon_t$ sont gaussiens iid. Cette hypothèse est absolument centrale pour avoir un vecteur gaussien et en déduire des statistiques de test. 
 2. On suppose que les coefficients estimés sont les vrais coefficients du modèle et que le modèle est bien spécifié
-3. On suppose que la variance des $\varepsilon_t$ est non nulle et estimable par $\hat\sigma^2$
+3. On suppose que la variance des $\varepsilon_t$ est non nulle et estimable par $\hat\sigma^2_{\epsilon}$
 
 ## 8 - Représentation graphique de la région de confiance {-}
 
@@ -277,7 +277,7 @@ On ne peut pas rejeter l'hypothèse nulle que les coefficients sont nuls aux seu
 adf
 ```
 
-## Sorties de tests sur la série différenciée {#testdindice}
+## Sorties des tests sur la série différenciée {#testdindice}
 
 
 ```{r, echo = FALSE}
