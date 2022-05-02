@@ -1,7 +1,7 @@
 ---
 title: "Projet de Séries Temporelles: modélisation ARIMA"
 author: "Conrad Thiounn et Léo Houairi"
-date: "14/04/2022"
+date: "02/05/2022"
 geometry: margin=2cm
 output:
   bookdown::pdf_document2:
@@ -157,7 +157,7 @@ Des valeurs significatives pour des retards élevés pourraient signaler une cer
 Maintenant que nous avons choisi pmax = 5 et qmax = 2, nous utilisons les critères AIC et BIC pour sélectionner des modèles. Ces critères doivent être minimisés.
 
 
-Avec le critère **AIC**, nous retenons un modèle ARMA(5,0) pour la série différenciée et donc un modèle ARIMA(5,1,0) pour la série initiale. La sortie ci-dessous indique les valeurs des coefficients de ce modèle. 
+Avec le critère **AIC**, nous retenons un modèle ARMA(5,0) pour la série différenciée et donc un modèle ARIMA(5,1,0) pour la série initiale. La sortie ci-dessous indique les valeurs des coefficients de ce modèle (note: * = p <0.1, ** = p < 0.05, *** = p < 0.01).
 
 
 || ar1 | ar2 | ar3 | ar4 | ar5 |
@@ -173,7 +173,7 @@ Le modèle est bien ajusté car le coefficient d'ordre le plus élevé est signi
 Il faut alors vérifier que le modèle est valide, c'est-à-dire que les résidus ne sont pas corrélés. Un test de Ljung-Box pour des retards allant jusqu'à 24 est effectué. L'hypothèse nulle de non-corrélation des résidus n'est pas rejetée (voir annexe \@ref(corr510)). Par conséquent, on conclut que le modèle est valide.
 
 
-Avec le critère **BIC**, nous retenons un modèle ARMA(1,1) pour la série différenciée et donc un modèle ARIMA(1,1,1) pour la série initiale. La sortie ci-dessous indique les valeurs des coefficients de ce modèle. 
+Avec le critère **BIC**, nous retenons un modèle ARMA(1,1) pour la série différenciée et donc un modèle ARIMA(1,1,1) pour la série initiale. La sortie ci-dessous indique les valeurs des coefficients de ce modèle (note: * = p <0.1, ** = p < 0.05, *** = p < 0.01).
 
 || ar1 | ma1 |
 |----:|:------:|:-----:|
@@ -198,7 +198,7 @@ Nous donnons ci-dessous l'écriture du modèle ARIMA(1,1,1):
 $$\left( 1 -  \varphi L \right)
 (1-L) X_t
 = \left( 1 +\theta L \right) \varepsilon_t \,$$
-avec $\hat\varphi = 0.4006$ et $\hat\theta =  -0.7190$ et où L est l'opérateur de retard (souvent noté B).
+avec $\hat\varphi = 0.4006$ et $\hat\theta =  -0.7190$ et où L est l'opérateur de retard (souvent noté B). Note: la notation du cours conduirait à écrire $( 1 - \theta L ) \varepsilon_t$ dans l'équation ci-dessus. Cependant, la documentation du package tseries (https://cran.r-project.org/web/packages/tseries/tseries.pdf) semble indiquer une écriture du modèle ARMA avec un "+" d'où notre écriture.
 
 # Partie 3 : Prévision {-}
 
