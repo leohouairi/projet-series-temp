@@ -165,7 +165,7 @@ Avec le critère **AIC**, nous retenons un modèle ARMA(5,0) pour la série diff
 |coeff.|   -0.3166  |  -0.2305  |    -0.1163   |    -0.1750  | -0.1449 |
 |s.e.|  0.0506  |  0.0531 |   0.0551   |   0.0545  |0.0535|
 |t-stat|  -6,2569  |  -4,3409 |   -2,1107   |   -3,2110  |-2,7084|
-|p-valeur|    ***  |    *** |     ***   |     ***  | *** |
+|p-valeur|    ***  |    *** |     **   |     ***  | *** |
 
 
 Le modèle est bien ajusté car le coefficient d'ordre le plus élevé est significatif . En effet, sa t-statistique est supérieure à 1.96 en valeur absolue (elle vaut 0.1449/0.0535 = 2.71) et on peut donc rejeter l'hypothèse nulle de nullité du coefficient au seuil de 5%.
@@ -332,7 +332,8 @@ require(forecast)
 ## Importation des données 
 
 datafile <- "data/valeurs_mensuelles.csv"
-data <- read.csv(datafile, sep=";", skip = 3, col.names =c("mois", "valeur", "A"))
+data <- read.csv(datafile, sep=";", skip = 3, 
+                 col.names =c("mois", "valeur", "A"))
 data <- data[,-3] # Suppression de la colonne inutile
 
 dates_char <- data$mois
@@ -342,7 +343,8 @@ dates <- as.yearmon(seq(from = 1990+0/12, to = 2022+1/12, by = 1/12))
 
 ## Premiers graphiques
 
-indice <- zoo(data$valeur, order.by = dates) # C'est bien la liste précédente qui est utile
+indice <- zoo(data$valeur, order.by = dates) # C'est bien la liste précédente 
+#qui est utile
 dindice <- diff(indice, 1) # Différence première
 
 plot(cbind(indice, dindice))
@@ -352,7 +354,8 @@ plot(cbind(indice, dindice))
 # La sériée différenciée une fois parait stationnaire autour de 0 
 
 
-## Vérification de la présence d'une tendance linéaire déterministe dans les données
+## Vérification de la présence d'une tendance linéaire déterministe dans 
+##les données
 
 reg <- lm(formula = indice ~ dates)
 summary(reg)
@@ -369,7 +372,8 @@ Qtests= function(series, k, fitdf=0) {
   # k = nombre maximal de lags à vérifier
   # fitdf = nombre de coefficients estimés, à retirer des ddl pour le test
   pvals = apply(matrix(1:k), 1, FUN=function(l) {
-    pval = if (l<=fitdf) NA else Box.test(series, lag=l, type="Ljung-Box", fitdf=fitdf)$p.value
+    pval = if (l<=fitdf) NA else Box.test(series, 
+              lag=l, type="Ljung-Box", fitdf=fitdf)$p.value
     return(c("lag"=l,"pval"=pval))
   })
   return(t(pvals))
@@ -383,7 +387,8 @@ adfTest_valid <- function(series, kmax, type) {
   while (noautocorr == 0) {
     cat(paste0("ADF with ", k," lags: residuals OK? "))
     adf <- adfTest(series, lags =k, type = type)
-    pvals <- Qtests(adf@test$lm$residuals, 24, fitdf = length(adf@test$lm$coefficients))[,2]
+    pvals <- Qtests(adf@test$lm$residuals, 24, 
+                    fitdf = length(adf@test$lm$coefficients))[,2]
     if(sum(pvals<0.05, na.rm =T) == 0){
       noautocorr <- 1; cat("OK \n")}
     else cat("nope \n")
@@ -395,8 +400,8 @@ adfTest_valid <- function(series, kmax, type) {
 ## Test de racine unitaire sur la série non-différenciée
 
 # On teste sur la série non-différenciée pour la présence d'une racine unitaire
-# On utilise "nc" puisque d'après la régression effectuée, notre série ne contient
-# ni tendance temporelle déterministe ni ordonnée à l'origine
+# On utilise "nc" puisque d'après la régression effectuée, notre série ne 
+# contient ni tendance temporelle déterministe ni ordonnée à l'origine
 # On teste jusqu'à 24 retards
 adf <- adfTest_valid(indice, 24, "nc")
 adf
@@ -449,8 +454,10 @@ for (row in 1:dim(pqs)[1]){ #On boucle sur chaque pq
   p <- pqs[row, 1] # On récupère p 
   q <- pqs[row, 2] # On récupère q
   estim <- try(arima(x, c(p,0,q), include.mean= F)) # Tenter d'estimer l'ARIMA
-  AICs[p+1, q+1] <- if(class(estim) == "try-error") NA else estim$aic #Assigne l'AIC
-  BICs[p+1, q+1] <- if(class(estim) == "try-error") NA else BIC(estim) # Assigne le BIC
+  #Assigne l'AIC
+  AICs[p+1, q+1] <- if(class(estim) == "try-error") NA else estim$aic 
+  # Assigne le BIC
+  BICs[p+1, q+1] <- if(class(estim) == "try-error") NA else BIC(estim) 
 }
 
 AICs
